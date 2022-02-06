@@ -1,0 +1,42 @@
+[[define "parent_post"]]
+  <div class="flex card" style="padding: 20px 0px;">
+    <div class="votes flex">
+      <form class="vote-form" action="/vote/[[$.Post.ID]]" method="POST">
+        <input type="hidden" name="direction" value="true">
+        <input type="hidden" name="target" value="[[$.Post.ID]]">
+        <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
+        <input class="text-button" type="submit" value="&#9650;">
+      </form>
+      <div class="post-count">[[score $.Post.Score]]</div>
+      <form class="vote-form" action="/vote/[[$.Post.ID]]" method="POST">
+        <input type="hidden" name="direction" value="false">
+        <input type="hidden" name="target" value="[[$.Post.ID]]">
+        <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
+        <input class="text-button" type="submit" value="&#9660;">
+      </form>
+    </div>
+    <div>
+      <p class="post-view-title">
+        [[/* TODO: Show parent preview or something else here */]]
+        [[if eq $.Post.Title ""]]
+          <a href="/p/[[$.Post.Parent]]">View Parent ↑</a>
+        [[else]]
+          [[unescape $.Post.Title]]
+        [[end]]
+      </p>
+      <p class="post-view-tagline">
+          <span>posted by </span>
+          <span><a href="/u/[[$.Post.PubKey]]">[[pubkeyAlias $.Post.PubKey]]</a> [[timeAgo $.Post.CreatedAt]]</span>
+          <span>to <a href="/c/[[if eq $.Post.Channel ""]]all[[else]][[$.Post.Channel]][[end]]">[[if eq $.Post.Channel ""]]all[[else]][[$.Post.Channel]][[end]]</a> </span>
+      </p>
+      <div class="post-body">[[if eq $.User.HideImages true]][[renderMarkdownNoImages $.Post.Body]][[else]][[renderMarkdown $.Post.Body]][[end]]</div>
+      <div class="post-actions">
+        <span><a href="#comments">[[$.Post.Children]] comments</a> | </span>
+        <span><a href="#share-box">share</a> | </span>
+        <span><a href="/p/[[$.Post.ID]]/reply">reply</a> | </span>
+        <span><a href="/report/[[$.Post.ID]]">report</a></span>
+        [[template "share_box" dict "Post" $.Post "Config" .Config]]
+      </div>
+    </div>
+  </div>
+[[end]]

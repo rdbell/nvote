@@ -104,7 +104,7 @@ func fetchEvents() {
 				continue
 			}
 
-			fmt.Println(insertPost(&event))
+			insertPost(&event)
 		}
 	}()
 }

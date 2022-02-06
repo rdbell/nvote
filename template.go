@@ -36,8 +36,12 @@ type pageData struct {
 
 // Init initializes a PageData instance with request info
 func (p *pageData) Init(c echo.Context) *pageData {
+	user := schemas.LoggedOutUser()
+	if u, ok := c.Get("user").(*schemas.User); ok {
+		user = u
+	}
 	p.Config = appConfig
-	p.User = c.Get("user").(*schemas.User)
+	p.User = user
 	p.CsrfToken, _ = c.Get("csrf").(string)
 	return p
 }

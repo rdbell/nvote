@@ -1,7 +1,8 @@
 [[define "content"]]
   [[$postLabel := "post"]]
-  [[if ne .Page.Parent ""]]
+  [[if ne .Page.Parent.ID ""]]
     [[$postLabel = "comment"]]
+    [[template "parent_post" dict "Post" .Page.Parent "User" .User "Config" .Config]]
   [[end]]
   <div class="card flex justify-center" style="padding: 60px 20px; font-weight: 400; font-size: .8em;">
     <div class="w-100" style="max-width: 800px;">
@@ -12,7 +13,7 @@
             <td colspan="2">
               <center><div>new [[$postLabel]]</div></center>
             </td>
-            [[if eq .Page.Parent ""]]
+            [[if eq .Page.Parent.ID ""]]
             <tr>
               <td>
                 <div>title</div>
@@ -22,7 +23,7 @@
               </td>
             </tr>
             [[else]]
-              <input type="hidden" name="parent" value="[[.Page.Parent]]"></input>
+              <input type="hidden" name="parent" value="[[.Page.Parent.ID]]"></input>
             [[end]]
             <tr>
               <td>
@@ -31,10 +32,10 @@
                 </div>
               </td>
               <td>
-                <textarea class="w-100" name="body" maxlength="[[.Config.BodyMaxCharacters]]" required></textarea>
+                <textarea class="w-100" name="body" maxlength="[[.Config.BodyMaxCharacters]]" style="height: 192px;" required></textarea>
               </td>
             </tr>
-            [[if eq .Page.Parent ""]]
+            [[if eq .Page.Parent.ID ""]]
             <tr>
               <td>
                 <div>channel</div>

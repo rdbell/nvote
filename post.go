@@ -16,7 +16,7 @@ import (
 func postRoutes(e *echo.Echo) {
 	e.GET("/new", isLoggedIn(isVerified(newPostHandler)))
 	e.POST("/new", isLoggedIn(isVerified(newPostSubmitHandler)))
-	e.GET("/p/:id", viewSinglePostHandler)
+	e.GET("/p/:id", viewPostHandler)
 	e.GET("/p/:parent/reply", isLoggedIn(isVerified(newPostHandler)))
 }
 
@@ -113,17 +113,25 @@ func fetchPosts(filters *schemas.PostFilterset) ([]*schemas.Post, error) {
 // newPostHandler serves the New Post page
 func newPostHandler(c echo.Context) error {
 	var page struct {
-		Parent  string
+		Parent  *schemas.Post
 		Channel string
 	}
 	page.Channel = c.Param("channel")
+	page.Parent = &schemas.Post{}
 
 	pd := new(pageData).Init(c)
 	pd.Title = "New Post"
-	page.Parent = c.Param("parent")
-	if page.Parent != "" {
+
+	// Fill parent info
+	if c.Param("parent") != "" {
 		pd.Title = "Reply to Post"
+		var err error
+		page.Parent, err = getPost(c.Param("parent"))
+		if err != nil || page.Parent == nil {
+			return serveError(c, http.StatusNotFound, errors.New("not found"))
+		}
 	}
+
 	pd.Page = page
 	return c.Render(http.StatusOK, "base:new_post", pd)
 }
@@ -152,8 +160,8 @@ func newPostSubmitHandler(c echo.Context) error {
 	return c.Redirect(http.StatusFound, fmt.Sprintf("/p/%s", event.ID))
 }
 
-// viewSinglePostHandler serves a single post
-func viewSinglePostHandler(c echo.Context) error {
+// viewPostHandler serves a single post and its children
+func viewPostHandler(c echo.Context) error {
 	// Ensure ID provided
 	id := c.Param("id")
 	if id == "" {
@@ -182,26 +190,36 @@ func viewSinglePostHandler(c echo.Context) error {
 	return c.Render(http.StatusOK, "base:view_post", pd)
 }
 
-// getPostTree recursively queries the DB to return a post and all of its children
-// TODO: switch to WITH RECURSIVE ... SELECT?
-func getPostTree(id string, depth int) []*schemas.Post {
-	var posts []*schemas.Post
-
-	// Get parent post
-	// it shouldn't be hidden from them regardless of their settings flag
+// getPost queries the DB to return a single post with a specified ID
+func getPost(id string) (*schemas.Post, error) {
+	// Get post
 	post := &schemas.Post{}
 	err := db.QueryRow(`SELECT id, score, children, pubkey, created_at, title, body, channel, parent FROM posts WHERE id = ?`, id).Scan(
 		&post.ID, &post.Score, &post.Children, &post.PubKey, &post.CreatedAt, &post.Title, &post.Body, &post.Channel, &post.Parent,
 	)
 
 	if err != nil {
-		return nil
+		return nil, err
 	}
+
+	return post, nil
+}
+
+// getPostTree recursively queries the DB to return a post and all of its children
+// TODO: switch to WITH RECURSIVE ... SELECT?
+func getPostTree(id string, depth int) []*schemas.Post {
+	var posts []*schemas.Post
+
+	// Get parent post
 	if depth == 0 {
+		post, err := getPost(id)
+		if err != nil || post == nil {
+			return nil
+		}
 		posts = append(posts, post)
 	}
 
-	rows, err := db.Query(fmt.Sprintf(`SELECT id, score, children, pubkey, created_at, title, body, parent FROM posts WHERE parent = ? ORDER BY ranking DESC`), post.ID)
+	rows, err := db.Query(fmt.Sprintf(`SELECT id, score, children, pubkey, created_at, title, body, parent FROM posts WHERE parent = ? ORDER BY ranking DESC`), id)
 	if err != nil {
 		return posts
 	}
