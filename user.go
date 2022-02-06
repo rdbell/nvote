@@ -8,9 +8,9 @@ import (
 
 	"github.com/rdbell/nvote/schemas"
 
-	"github.com/fiatjaf/go-nostr"
-	"github.com/fiatjaf/go-nostr/nip06"
 	"github.com/labstack/echo/v4"
+	"github.com/rdbell/go-nostr"
+	"github.com/rdbell/go-nostr/nip06"
 )
 
 // userRoutes sets up auth/account-related routes

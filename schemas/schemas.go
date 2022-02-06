@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/fiatjaf/go-nostr/nip06"
 	"github.com/microcosm-cc/bluemonday"
+	"github.com/rdbell/go-nostr/nip06"
 )
 
 var appConfig *AppConfig

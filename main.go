@@ -11,10 +11,10 @@ import (
 
 	checkErr "github.com/rdbell/nvote/check"
 
-	"github.com/fiatjaf/go-nostr"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/rdbell/go-nostr"
 )
 
 var environment = ""

@@ -11,9 +11,9 @@ import (
 
 	checkErr "github.com/rdbell/nvote/check"
 
-	"github.com/fiatjaf/go-nostr"
 	"github.com/labstack/echo/v4"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/rdbell/go-nostr"
 )
 
 // db is a sqlite DB for storying/querying posts
@@ -166,7 +166,6 @@ func publishEvent(c echo.Context, content []byte) (*nostr.Event, error) {
 				// to prevent redirecting too early
 				return result, nil
 			}
-			fmt.Println(status.Status)
 		case <-time.After(time.Second * 10):
 			return event, errors.New("timeout during publish")
 		}

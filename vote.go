@@ -9,8 +9,8 @@ import (
 
 	"github.com/rdbell/nvote/schemas"
 
-	"github.com/fiatjaf/go-nostr"
 	"github.com/labstack/echo/v4"
+	"github.com/rdbell/go-nostr"
 )
 
 // voteRoutes sets up vote-related routes
