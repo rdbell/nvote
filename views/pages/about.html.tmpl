@@ -1,0 +1,103 @@
+[[define "content"]]
+  <div class="card" style="padding: 12px; font-size: .8em;">
+    <h5>[[.Config.SiteName]]</h5>
+    <p>
+      [[.Config.SiteName]] is an open-source, decentralized, vote-driven community similar to services like Reddit and HackerNews. Nvote is powered by <a href="https://github.com/fiatjaf/nostr">nostr</a>. [[.Config.SiteName]] is an experimental work-in-progress.
+    </p>
+
+    <h5>Why should I want to use this instead of a centralized service like Reddit?</h5>
+    <p>
+      <ul>
+        <li>It's lightweight. No ads, no javascript. No images except in posts. (inline images can be disabled in <a href="[[.Config.SiteURL]]/settings">settings</a>)</li>
+        <li>Full feature compatibility with privacy browsers like TorBrowser with javascript disabled.</li>
+        <li>Community-based spam prevention with no centralized moderators.</li>
+        <li>Publicly available activity data to help the community identify vote manipulation and astroturfing.
+        <li>Anyone can host a nostr relay and mirror the data.</li>
+        <li>Relays and clients can be run locally or be made public for other people to share.</li>
+        <li>Ability to disable spam filters or even host your own client and implement custom filters.</li>
+        <li>You don't have to rely on a single relay for content. You can configure the client to use other relays as data providers.</li>
+        <li>Backend data is owned by nobody and can be digested by alternative clients without the need for special API permissions.</li>
+      </ul>
+    </p>
+
+    <h5>What if I find a bug?</h5>
+    <p>
+      Report the bug <a href="[[.Config.RepoLink]]">here</a>. If the bug is severe, consider reporting to an admin on <a href="[[.Config.TelegramLink]]">Telegram</a>.
+    </p>
+
+    <h5>Why do I have to pay to verify my account?</h5>
+    <p>
+      Account verification is meant to mitigate spam and vote manipulation. The small fee required is to prevent abusive users from creatings hundreds of bot accounts.
+    </p>
+
+    <h5>What if I don't have lightning funds?</h5>
+    <p>
+      Download a lightning wallet and get some funds. If you join the <a href="[[.Config.TelegramLink]]">Telegram group</a> someone may help you out if you ask nicely.
+    </p>
+
+    <h5>Can you add additional ways to verify an account?</h5>
+    <p>
+      Maybe.
+    </p>
+
+    <h5>What are seeds / private keys for?</h5>
+    <p>
+      Your seed or private key is used to authenticate you and generate a public key that's used for identifying you. Keep it safe. There's no way to recover an account if you lose your seed or private key.
+    </p>
+
+    <h5>Can I login with the same key/seedphrase that I use for my Bitcoin?</h5>
+    <p>
+      Yes, but don't do that.
+    </p>
+
+    <h5>Can I change my username?</h5>
+    <p>
+      Not yet. Soon.
+    </p>
+
+    <h5>How can I run my own client?</h5>
+    <p>
+      Check out the code on <a href="[[.Config.RepoLink]]">github</a> and run it locally or host it on a server for others to use.
+    </p>
+
+    <h5>Should I use someone else's hosted client?</h5>
+    <p>
+      It's up to you whether you trust the person operating the gateway. A gateway client that you don't control can theoretically steal your private key or seed if they've modified the codebase.
+    </p>
+
+    <h5>How can I run my own nostr relay?</h5>
+    <p>
+      Check out some of the relay options on <a href="https://github.com/fiatjaf/nostr">github</a>.
+    </p>
+
+    <h5>Can my relay communicate with your relay?</h5>
+    <p>
+      [[.Config.SiteName]]'s main relay is available at [[.Config.RelayPublic]] and responds to public event requests/submissions.
+    </p>
+
+    <h5>Will you consider adding more relays to the official repo as mirrors?</h5>
+    <p>
+      Not right now. This is still an experimental project under active development. Maybe in the future.
+    </p>
+
+    <h5>How long will your relay retain content?</h5>
+    <p>
+      Our relay will try to retain content as long as possible. We may have to purge content if we find bugs and need to clear out spam or if we need to change the message formats.
+    </p>
+
+    <h5>Can I delete a post/comment?</h5>
+    <p>
+      Post/comment deletion will be added soon. Keep in mind, there's no guarantee that your post/comment gets wiped from the internet entirely. If another relay mirrors your event it's up to that relay whether to decide to honor a deletion request.
+    </p>
+
+    <h5>Why isn't the UI/UX better?</h5>
+    <p>
+      [[.Config.SiteName]] is still under active development. Feel free to <a href="[[.Config.RepoLink]]">contribute</a> and help out.
+    </p>
+
+    <h5>Can you implement feature X?</h5>
+    <p>
+      Maybe. Submit an issue on <a href="[[.Config.RepoLink]]">github</a>.
+    </p>
+  </div>
+[[end]]

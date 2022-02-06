@@ -1,0 +1,57 @@
+[[define "content"]]
+  <div class="card" style="padding: 60px; 20px; font-weight: 400;">
+    <center><div style="margin-bottom: 20px;">Login Method</div></center>
+    <div class="flex" style="flex-wrap: wrap; justify-content: center; font-size: .8em;">
+      <div style="padding: 20px; border: 1px solid #d8dae1;">
+        <form action="/login" method="POST">
+          <div class="flex" style="flex-direction: column; align-items: center; width: 300px;">
+            <p>
+              <label for="password">Password Login</label>
+            </p>
+            <input class="w-80" type="text" name="password" placeholder="MySecretPass123!@#$">
+            <input type="hidden" name="csrf" value="[[.CsrfToken]]">
+            <input type="submit" value="login">
+          </div>
+        </form>
+      </div>
+      <div style="padding: 20px; border: 1px solid #d8dae1;">
+        <form action="/login" method="POST">
+          <div class="flex" style="flex-direction: column; align-items: center; width: 300px;">
+            <p>
+              <label for="seed">Seed Phrase Login (Recommended)</label>
+            </p>
+            <input class="w-80" type="text" name="seed" placeholder="piano early guess emerge ...">
+            <input type="hidden" name="csrf" value="[[.CsrfToken]]">
+            <input type="submit" value="login">
+            <a href="#suggest-seed">need a seed phrase?</a>
+          </div>
+        </form>
+      </div>
+      <div style="padding: 20px; border: 1px solid #d8dae1;">
+        <form action="/login" method="POST">
+          <div class="flex" style="flex-direction: column; align-items: center; width: 300px;">
+            <p>
+              <label for="privkey">Private Key Login</label>
+            </p>
+            <input class="w-80" type="text" name="privkey" placeholder="96a1e28738f24...">
+            <input type="hidden" name="csrf" value="[[.CsrfToken]]">
+            <input type="submit" value="login">
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div id="suggest-seed" class="modal" style="display: none;">
+    <div class="modal-content">
+      <center>
+        <div>Suggested BIP39 Mnemonic</div>
+        <br>
+        <div style="background-color: black;"><code style="color: #d8dae1;">[[.Page.SuggestedSeed]]</code></div>
+        <br>
+        <div class="red">WARNING: Keep this seed phrase in a safe location. Your account cannot be recovered if you lose the seed phrase.</div>
+      </center>
+      <a href="#" class="modal-close">&times;</a>
+    </div>
+  </div>
+[[end]]
+

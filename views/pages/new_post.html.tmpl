@@ -1,0 +1,63 @@
+[[define "content"]]
+  [[$postLabel := "post"]]
+  [[if ne .Page.Parent ""]]
+    [[$postLabel = "comment"]]
+  [[end]]
+  <div class="card flex justify-center" style="padding: 60px 20px; font-weight: 400; font-size: .8em;">
+    <div class="w-100" style="max-width: 800px;">
+      <form action="/new" method="POST">
+        <table>
+          <tbody>
+          <tr>
+            <td colspan="2">
+              <center><div>new [[$postLabel]]</div></center>
+            </td>
+            [[/*TODO: display post that's being replied to*/]]
+            [[if eq .Page.Parent ""]]
+            <tr>
+              <td>
+                <div>title</div>
+              </td>
+              <td>
+                <input class="w-100" type="text" name="title" maxlength="[[.Config.TitleMaxCharacters]]" required>
+              </td>
+            </tr>
+            [[else]]
+              <input type="hidden" name="parent" value="[[.Page.Parent]]"></input>
+            [[end]]
+            <tr>
+              <td>
+                <div>
+                  [[$postLabel]]
+                </div>
+              </td>
+              <td>
+                [[/* TODO: markdown preview in iframe */]]
+                <textarea class="w-100" name="body" maxlength="[[.Config.BodyMaxCharacters]]" required></textarea>
+              </td>
+            </tr>
+            [[if eq .Page.Parent ""]]
+            <tr>
+              <td>
+                <div>channel</div>
+              </td>
+              <td>
+                <input class="w-100" type="text" name="channel" [[if ne .Page.Channel ""]]value="[[.Page.Channel]]"[[end]]placeholder="bitcoin (optional)" maxlength="[[.Config.ChannelMaxCharacters]]">
+              </td>
+            </tr>
+            [[end]]
+            <tr>
+              <td colspan="2">
+                <center>
+                  <div>Posting as [[pubkeyAlias .User.PubKey]] <a href="#" title=[[.User.PubKey]]>([[shortPubkey .User.PubKey]])</a></div>
+                  <input type="submit" value="submit">
+                  <input type="hidden" name="csrf" value="[[.CsrfToken]]">
+                </center>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+[[end]]

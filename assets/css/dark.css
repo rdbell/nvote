@@ -1,0 +1,30 @@
+body {
+  background-color: #0A0E17;
+  color: #fff;
+}
+
+#header {
+  background-color: #1C2230;
+}
+
+a, a:visited {
+  color: #fff;
+}
+
+.text-button {
+  color: #fff !important;
+  background-color: inherit !important;
+}
+
+.card {
+  background-color: #1C2230;
+  border: 1px solid #373738;
+}
+
+footer {
+  border-top: 1px solid #373738;
+}
+
+td {
+  border: 1px solid #9b9b9b;
+}

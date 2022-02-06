@@ -1,0 +1,49 @@
+[[define "layout"]]
+<!DOCTYPE html>
+<html>
+
+<head>
+  [[template "headTags" .]]
+</head>
+
+<body>
+  <!-- header -->
+    <div id="header">
+      <div class="header-content flex">
+        <div class="flex">
+          <div><span id="logo-icon">[[.Config.SiteIcon]]</span><a href="/" id="logo-text">[[.Config.SiteName]]</a></div>
+          <div>&nbsp;&nbsp;</div>
+          <div><a class="header-link" href="/">top</a></div>
+          <div class="bullet">&bull;</div>
+          <div><a class="header-link" href="/recent">recent</a></div>
+          [[if ne .User.PubKey ""]]
+            <div class="bullet">&bull;</div>
+            <div><a class="header-link" href="/new">submit</a></div>
+          [[end]]
+        </div>
+        <div class="flex">
+          [[if eq .User.PubKey ""]]
+            <div><a class="header-link" href="/login">login</a></div>
+          [[else]]
+            <div><a class="header-link" href="/settings">settings</a></div>
+            <div class="bullet">&bull;</div>
+            <div><a class="header-link" href="/u/[[.User.PubKey]]">[[pubkeyAlias .User.PubKey]]</a></div>
+            <div class="bullet">&bull;</div>
+            <form action="/logout" method="POST" style="margin-block: auto;">
+              <div><input class="header-link text-button" type="submit" value="logout"></div>
+              <input type="hidden" name="csrf" value="[[.CsrfToken]]">
+            </form>
+          [[end]]
+        </div>
+      </div>
+    </div>
+  <!-- /header -->
+  <div id="content">
+    [[template "content" .]]
+  </div>
+</body>
+
+[[template "footer" .]]
+
+</html>
+[[end]]

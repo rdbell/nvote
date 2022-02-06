@@ -1,0 +1,18 @@
+[[define "content"]]
+  <h5>
+    [[$channel := .Page.Channel]][[if eq .Page.Channel ""]][[$channel = "all"]][[end]]
+    top posts in <a href="/c/[[$channel]]">/c/[[$channel]]</a>
+    <div style="font-size: .55em;"><a href="/c/[[$channel]]/recent">view recent &#8594;</a></div>
+  </h5>
+  <div>
+    [[$length := len .Page.Posts]] [[if eq $length 0]]
+      <p>No recent posts :(</p>
+    [[else]]
+      [[range $_, $post := .Page.Posts]]
+        [[if ne $post.Title ""]]
+          [[template "post_row" dict "Post" $post "CsrfToken" $.CsrfToken "Type" "post" "Config" $.Config]]
+        [[end]]
+      [[end]]
+    [[end]]
+  </div>
+[[end]]

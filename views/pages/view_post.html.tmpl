@@ -1,0 +1,58 @@
+[[define "content"]]
+  [[$post := index .Page.Posts 0]]
+  [[$postCount := len .Page.Posts]]
+  <div class="flex card" style="padding: 20px 0px;">
+    <div class="votes flex">
+      <form class="vote-form" action="/vote/[[$post.ID]]" method="POST">
+        <input type="hidden" name="direction" value="true">
+        <input type="hidden" name="target" value="[[$post.ID]]">
+        <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
+        <input class="text-button" type="submit" value="&#9650;">
+      </form>
+      <div class="post-count">[[score $post.Score]]</div>
+      <form class="vote-form" action="/vote/[[$post.ID]]" method="POST">
+        <input type="hidden" name="direction" value="false">
+        <input type="hidden" name="target" value="[[$post.ID]]">
+        <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
+        <input class="text-button" type="submit" value="&#9660;">
+      </form>
+    </div>
+    <div>
+      <p class="post-view-title">
+        [[/* TODO: Show parent preview or something else here */]]
+        [[if eq $post.Title ""]]
+          <a href="/p/[[$post.Parent]]">View Parent ↑</a>
+        [[else]]
+          [[unescape $post.Title]]
+        [[end]]
+      </p>
+      <p class="post-view-tagline">
+          <span>posted by </span>
+          <span><a href="/u/[[$post.PubKey]]">[[pubkeyAlias $post.PubKey]]</a> [[timeAgo $post.CreatedAt]]</span>
+          <span>to <a href="/c/[[if eq $post.Channel ""]]all[[else]][[$post.Channel]][[end]]">[[if eq $post.Channel ""]]all[[else]][[$post.Channel]][[end]]</a> </span>
+      </p>
+      <div class="post-body">[[if eq .User.HideImages true]][[renderMarkdownNoImages $post.Body]][[else]][[renderMarkdown $post.Body]][[end]]</div>
+      <div class="post-actions">
+        <span><a href="#comments">[[add $postCount -1]] comments</a> | </span>
+        <span><a href="#share-box">share</a> | </span>
+        <span><a href="/p/[[$post.ID]]/reply">reply</a> | </span>
+        <span><a href="/report/[[$post.ID]]">report</a></span>
+        [[template "share_box" dict "Post" $post "Config" .Config]]
+      </div>
+    </div>
+  </div>
+  <p id="comments">
+    [[if eq $post.Title ""]]
+      Replies
+    [[else]]
+      comments
+    [[end]]
+  </h5>
+  [[if eq $postCount 1]]
+    <p>No replies.</p>
+  [[else]]
+    <div class="replies">
+      [[template "replies" dict "Posts" .Page.Posts "Parent" .Page.ID "CsrfToken" .CsrfToken "Depth" 0 "User" .User]]
+    </div>
+  [[end]]
+[[end]]

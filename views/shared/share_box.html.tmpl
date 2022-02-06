@@ -1,0 +1,15 @@
+[[define "share_box"]]
+  <div id="share-box" class="modal" style="display: none;">
+    <div class="modal-content">
+      [[$link := printf "%s%s%s" $.Config.SiteURL "/p/" $.Post.ID]]
+      <input type="text" value="[[$link]]">
+      <br>
+      <a href="#" class="modal-close">&times;</a>
+      <span><a href="https://nostr.rocks/" target="_blank">Branle</a> |</span>
+      <span><a href="https://twitter.com/intent/tweet?text=[[$.Post.Title]] - [[$link]]" target="_blank">Twitter</a> |</span>
+      <span><a href="http://www.reddit.com/submit?url=[[$link]]" target="_blank">Reddit |</a></span>
+      <span><a href="https://news.ycombinator.com/submit" target="_blank">HackerNews |</a></span>
+      <span><a href="https://www.facebook.com/sharer/sharer.php?u=[[$link]]" target="_blank">Facebook</a></span>
+    </div>
+  </div>
+[[end]]

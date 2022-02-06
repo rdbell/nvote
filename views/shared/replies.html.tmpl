@@ -1,0 +1,51 @@
+[[define "replies"]]
+  [[$nextDepth := add $.Depth 1]]
+  [[$posts := .Posts]]
+    [[range $_, $post := $posts]]
+      [[if ne $post.Parent $.Parent]]
+        [[/* Only show children of parent */]]
+      [[else]]
+        [[if eq $.Depth 0]]
+        <div class="card comments-parent">
+        [[else]]
+        <div class="comments-child">
+        [[end]]
+          <input id="collapsible-[[$post.ID]]" type="checkbox" class="collapsible" [[if eq $.User.HideDownvoted true]][[if lt $post.Score -5]]checked[[end]][[end]]>
+          <label for="collapsible-[[$post.ID]]" class="post-view-tagline collapse-label">
+            <span><a href="/u/[[$post.PubKey]]">[[pubkeyAlias $post.PubKey]]</a> </span>
+            <span>[[pointsGrammar $post.Score]] </span>
+            <span>[[timeAgo $post.CreatedAt]]</span>
+          </label>
+          <div>
+            <div class="comment-body flex">
+              <div class="votes flex">
+                <form class="vote-form" action="/vote/[[$post.ID]]" method="POST">
+                  <input type="hidden" name="direction" value="true">
+                  <input type="hidden" name="target" value="[[$post.ID]]">
+                  <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
+                  <input class="text-button" type="submit" value="&#9650;">
+                </form>
+                <form class="vote-form" action="/vote/[[$post.ID]]" method="POST">
+                  <input type="hidden" name="direction" value="false">
+                  <input type="hidden" name="target" value="[[$post.ID]]">
+                  <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
+                  <input class="text-button" type="submit" value="&#9660;">
+                </form>
+              </div>
+              <div class="flex" style="flex-direction: column;">
+                <div>
+                  [[if eq $.User.HideImages true]][[renderMarkdownNoImages $post.Body]][[else]][[renderMarkdown $post.Body]][[end]]
+                </div>
+                <div class="post-actions">
+                  <a href="/p/[[$post.ID]]/reply">reply</a> | <a href="/p/[[$post.ID]]">permalink</a>
+                </div>
+              </div>
+            </div>
+            <div>
+              [[template "replies" dict "Posts" $posts "Parent" $post.ID "CsrfToken" $.CsrfToken "Depth" $nextDepth "User" $.User]]
+            </div>
+          </div>
+        </div>
+      [[end]]
+    [[end]]
+[[end]]

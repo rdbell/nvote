@@ -1,0 +1,44 @@
+[[define "content"]]
+  <div class="card flex justify-center" style="padding: 60px 20px; font-weight: 400; font-size: .8em;">
+    <div class="w-100" style="max-width: 240px;">
+      <form action="/settings" method="POST">
+        <table>
+          <tbody>
+            <tr>
+              <td colspan="2">
+                <center><div>content filters</div></center>
+              </td>
+            </tr>
+            <tr>
+              <td>hide downvoted (&lt; -5) comments:</td>
+              <td><input type="checkbox" name="hide_downvoted" [[if eq .User.HideDownvoted true]]checked[[end]] value="true"></td>
+            </tr>
+            <tr>
+              <td>hide posts from users with low scores:</td>
+              <td><input type="checkbox" name="hide_bad_users" [[if eq .User.HideBadUsers true]]checked[[end]] value="true"></td>
+            </tr>
+            <tr>
+              <td>don't auto-load images:</td>
+              <td><input type="checkbox" name="hide_images" [[if eq .User.HideImages true]]checked[[end]] value="true"></td>
+            </tr>
+            <tr>
+              <td>dark mode:</td>
+              <td><input type="checkbox" name="dark_mode" [[if eq .User.DarkMode true]]checked[[end]] value="true"></td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <center>
+                  <input type="hidden" name="pubkey" value="[[.User.PubKey]]">
+                  <input type="hidden" name="privkey" value="[[.User.PrivKey]]">
+                  <input type="hidden" name="csrf" value="[[.CsrfToken]]">
+                  <input type="submit" value="update">
+                </center>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+[[end]]
+

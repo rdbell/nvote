@@ -1,0 +1,12 @@
+[[define "headTags"]]
+
+<!-- Title -->
+<title>[[.Config.SiteName]] - [[.Title]]</title>
+<!-- All Meta -->
+<!-- Favicon -->
+<!-- CSS -->
+<link rel="stylesheet" href="/assets/css/simple.css?cb=[[cacheBuster]]">
+<link rel="stylesheet" href="/assets/css/main.css?cb=[[cacheBuster]]">
+[[if eq .User.DarkMode true]]<link rel="stylesheet" href="/assets/css/dark.css?cb=[[cacheBuster]]">[[end]]
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+[[end]]

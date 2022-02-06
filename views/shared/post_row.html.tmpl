@@ -1,0 +1,53 @@
+[[define "post_row"]]
+  <div class="card">
+    <div class="flex">
+      <div class="votes flex justify-center">
+        [[/* TODO: indicate whether a user has already voted and prevent second vote attempt */]]
+        <form class="vote-form" action="/vote/[[$.Post.ID]]" method="POST">
+          <input type="hidden" name="direction" value="true">
+          <input type="hidden" name="target" value="[[$.Post.ID]]">
+          <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
+          <input class="text-button" type="submit" value="&#9650;">
+        </form>
+        <div class="post-count">[[score $.Post.Score]]</div>
+        <form class="vote-form" action="/vote/[[$.Post.ID]]" method="POST">
+          <input type="hidden" name="direction" value="false">
+          <input type="hidden" name="target" value="[[$.Post.ID]]">
+          <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
+          <input class="text-button" type="submit" value="&#9660;">
+        </form>
+      </div>
+      <div>
+        <div class="post-row-title">
+          [[$href := (printf "/p/%s" $.Post.ID)]]
+          [[if eq $.Type "post"]]
+            [[if ne (trimmedURL $.Post.Body) ""]]
+              [[$href = (trimmedURL $.Post.Body)]]
+            [[end]]
+          [[end]]
+          <a href="[[$href]]">
+            [[if eq $.Type "post"]][[unescape $.Post.Title]][[else]][[unescape (shortBody $.Post.Body)]][[end]]
+            </a>
+          </div>
+        <div class="post-actions">
+          <span>posted by </span>
+          <span><a href="/u/[[$.Post.PubKey]]">[[pubkeyAlias $.Post.PubKey]]</a></span>
+          [[if eq $.Type "post"]]
+            <span>to <a href="/c/[[if eq $.Post.Channel ""]]all[[else]][[$.Post.Channel]][[end]]">[[if eq $.Post.Channel ""]]all[[else]][[$.Post.Channel]][[end]]</a> </span>
+          [[else]]
+            <span>in reply to <a href="/p/[[$.Post.Parent]]">[[shortPubkey $.Post.Parent]]</a> </span>
+            <span>in <a href="/c/[[if eq $.Post.Channel ""]]all[[else]][[$.Post.Channel]][[end]]">[[if eq $.Post.Channel ""]]all[[else]][[$.Post.Channel]][[end]]</a> </span>
+          [[end]]
+          <span>[[timeAgo $.Post.CreatedAt]]</span>
+        </div>
+        <div class="post-actions">
+          <span><a href="/p/[[$.Post.ID]]">[[$.Post.Children]] [[if eq $.Type "post"]]comments[[else]]replies[[end]]</a> | </span>
+          <span><a href="#share-box">share</a> | </span>
+          <span><a href="/p/[[$.Post.ID]]/reply">reply</a> | </span>
+          <span><a href="/report/[[$.Post.ID]]">report</a></span>
+          [[template "share_box" dict "Post" $.Post "Config" .Config]]
+        </div>
+      </div>
+    </div>
+  </div>
+[[end]]
