@@ -99,7 +99,6 @@ func insertVote(event *nostr.Event) error {
 	}
 
 	// Update post owner's user_score
-	// TODO: user_score should be more generous to new users, to prevent a user from being marked as "bad" if they make their first post and get downvoted immediately?
 	_, err = db.Exec(`UPDATE users SET user_score = user_score + ? WHERE pubkey = ?`, direction, postPubkey)
 	if err != nil {
 		return err

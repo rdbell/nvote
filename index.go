@@ -22,7 +22,6 @@ func indexHandler(c echo.Context) error {
 
 // activityHandler serves a list of recent activity
 func activityHandler(c echo.Context) error {
-	// TODO: activity page should show userScore if requesting activity for a user?
 	var page struct {
 		PubKey   string
 		Posts    []*schemas.Post
@@ -61,7 +60,6 @@ func activityHandler(c echo.Context) error {
 	}
 
 	// Recent votes
-	// TODO: this always returns all recent votes. should be able to return votes for a specified channel
 	page.Votes, err = fetchVotes(&schemas.VoteFilterset{
 		PubKey:        page.PubKey,
 		OrderByColumn: "created_at",

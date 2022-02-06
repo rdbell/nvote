@@ -17,12 +17,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-// TODO: CI/CD check for improperly formatted [[ variables]] in templates, lint css/htmltmpl, minify css/htmltmpl, golint, gofmt, code coverage, don't allow fmt.Printlns
-// TODO: CI/CD ensure proper use of db.Query/QueryRows/db.Exec (https://stackoverflow.com/questions/50664648/why-even-use-db-exec-or-prepared-statements-in-golang)
-// TODO: "explore" page which shows top active channels
-// TODO: channel search
-// TODO: post search
-
 var environment = ""
 var pool *nostr.RelayPool
 
@@ -71,7 +65,6 @@ func main() {
 	// Don't perform any re-routing in development environment
 	if environment != "" && environment != "development" {
 		e.Pre(httpsRedir)
-		// TODO: HTML & asset minification in prod
 	}
 
 	// Remove trailing slashes from URL paths

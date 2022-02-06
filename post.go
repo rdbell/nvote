@@ -29,7 +29,6 @@ func viewPostsHandler(c echo.Context) error {
 	page.Channel = c.Param("channel")
 
 	// Fetch posts ordered by ranking
-	// TODO: include Limit param here after implementing pagination
 	var err error
 	page.Posts, err = fetchPosts(&schemas.PostFilterset{
 		Channel:       page.Channel,
@@ -50,7 +49,6 @@ func viewPostsHandler(c echo.Context) error {
 
 // fetchPosts fetches posts for a given set of filters
 func fetchPosts(filters *schemas.PostFilterset) ([]*schemas.Post, error) {
-	// TODO: implement pagination
 	// Post filters
 	// "all" is a special catch-all channel. no need to filter by "all"
 	channelStmt := ""

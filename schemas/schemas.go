@@ -242,7 +242,7 @@ type AppConfig struct {
 	SiteIcon             string `json:"site_icon"`               // website's icon displayed in the header
 	Tagline              string `json:"tagline"`                 // website's tagline
 	SiteURL              string `json:"site_url"`                // webiste's base URL including protocol. no trailing slash
-	Relay                string `json:"relay"`                   // primary nostr relay endpoint - TODO: allow multiple relays
+	Relay                string `json:"relay"`                   // primary nostr relay endpoint
 	RelayPublic          string `json:"relay_public"`            // publicly accessable relay endpoint
 	RepoLink             string `json:"app_repo"`                // public repo for the project
 	TelegramLink         string `json:"telegram_link"`           // public telegram group link

@@ -12,7 +12,6 @@
             <td colspan="2">
               <center><div>new [[$postLabel]]</div></center>
             </td>
-            [[/*TODO: display post that's being replied to*/]]
             [[if eq .Page.Parent ""]]
             <tr>
               <td>
@@ -32,7 +31,6 @@
                 </div>
               </td>
               <td>
-                [[/* TODO: markdown preview in iframe */]]
                 <textarea class="w-100" name="body" maxlength="[[.Config.BodyMaxCharacters]]" required></textarea>
               </td>
             </tr>

@@ -77,10 +77,6 @@ func setupVotesTable() {
 // subEvents sets up the nostr relay pool and subscribes to events
 func fetchEvents() {
 	pool = nostr.NewRelayPool()
-	// TODO: multiple relays?
-	// TODO: reconnect websocket if connection is severed
-	// TODO: relay may need to start archiving posts and votes into a format that condenses threads into a single event
-	// and then evicts individual events. plan to implement importation of archived posts/votes
 	checkErr.Panic(pool.Add(appConfig.Relay, &nostr.SimplePolicy{Read: true, Write: true}))
 
 	go func() {
@@ -144,8 +140,6 @@ func publishEvent(c echo.Context, content []byte) (*nostr.Event, error) {
 	if err != nil {
 		return result, err
 	}
-
-	// TODO: cross-post to branle depending on user's settings?
 
 	for {
 		select {
