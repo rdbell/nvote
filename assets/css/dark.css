@@ -28,3 +28,9 @@ footer {
 td {
   border: 1px solid #9b9b9b;
 }
+
+input[type="text"], textarea {
+    background: rgb(10, 14, 24);
+    border: none;
+    color: #c8c8c8;
+}
