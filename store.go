@@ -74,7 +74,7 @@ func setupVotesTable() {
 	checkErr.Panic(err)
 }
 
-// subEvents sets up the nostr relay pool and subscribes to events
+// fetchEvents sets up the nostr relay pool and subscribes to events
 func fetchEvents() {
 	pool = nostr.NewRelayPool()
 	checkErr.Panic(pool.Add(appConfig.Relay, &nostr.SimplePolicy{Read: true, Write: true}))
