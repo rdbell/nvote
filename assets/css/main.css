@@ -129,8 +129,13 @@ input[type="checkbox"] {
     font-size: .7em;
 }
 
-.post-row>.flex {
-  align-items: center;
+.post-row {
+  padding: 8px;
+}
+
+.post-row-title {
+  line-height: 13px;
+  margin-bottom: 6px;
 }
 
 .post-row-title a {
@@ -295,6 +300,7 @@ tr:nth-child(even) {
 .votes {
   flex-direction: column;
   width: 40px;
+  min-width: 40px;
   align-items: center;
   line-height: 18px;
 }
