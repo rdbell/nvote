@@ -23,24 +23,29 @@ func indexHandler(c echo.Context) error {
 
 // exploreHandler serves a list of top channels
 func exploreHandler(c echo.Context) error {
+	type channel struct {
+		Name  string
+		Count int
+	}
+
 	var page struct {
-		Channels []string
+		Channels []*channel
 	}
 
 	// Query channel top-level post counts
+	// TODO: consider keeping a separate 'channels' table with columns like 'channel', 'post_count', 'comment_count' and query against that instead
 	rows, err := db.Query(`SELECT DISTINCT(channel), COUNT(channel) AS cnt FROM posts WHERE parent = '' GROUP BY channel ORDER BY cnt DESC`)
 	if err != nil {
 		return serveError(c, http.StatusInternalServerError, err)
 	}
 
 	for rows.Next() {
-		var channel string
-		var count int
-		err = rows.Scan(&channel, &count)
+		ch := &channel{}
+		err = rows.Scan(&ch.Name, &ch.Count)
 		if err != nil {
 			return serveError(c, http.StatusInternalServerError, err)
 		}
-		page.Channels = append(page.Channels, channel)
+		page.Channels = append(page.Channels, ch)
 	}
 
 	pd := new(pageData).Init(c)
