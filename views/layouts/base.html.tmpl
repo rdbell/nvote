@@ -11,15 +11,21 @@
     <div id="header">
       <div class="header-content flex">
         <div class="flex">
-          <div><a href="/" id="logo-text"><span id="logo-icon">[[.Config.SiteIcon]]</span>[[.Config.SiteName]]</a></div>
-          <div>&nbsp;&nbsp;</div>
-          <div><a class="header-link" href="/">top</a></div>
-          <div class="bullet">&bull;</div>
-          <div><a class="header-link" href="/recent">recent</a></div>
-          [[if ne .User.PubKey ""]]
+          <div class="flex">
+            <div><a href="/" id="logo-text"><span id="logo-icon">[[.Config.SiteIcon]]</span>[[.Config.SiteName]]</a></div>
+            <div>&nbsp;&nbsp;</div>
+          </div>
+          <div class="flex">
+            <div><a class="header-link" href="/">top</a></div>
             <div class="bullet">&bull;</div>
-            <div><a class="header-link" href="/new">submit</a></div>
-          [[end]]
+            <div><a class="header-link" href="/recent">recent</a></div>
+            <div class="bullet">&bull;</div>
+            <div><a class="header-link" href="/explore">explore</a></div>
+            [[if ne .User.PubKey ""]]
+              <div class="bullet">&bull;</div>
+              <div><a class="header-link" href="/new">submit</a></div>
+            [[end]]
+          </div>
         </div>
         <div class="flex">
           [[if eq .User.PubKey ""]]
