@@ -34,7 +34,7 @@ type Post struct {
 // IsValidPost ensures that a post looks valid for submission
 func (post *Post) IsValidPost() bool {
 	// Replies should have title/body
-	if post.Title == "" || post.Body == "" {
+	if post == nil || post.Title == "" || post.Body == "" {
 		return false
 	}
 
@@ -44,7 +44,7 @@ func (post *Post) IsValidPost() bool {
 // IsValidComment ensures that a reply looks valid for submission
 func (post *Post) IsValidComment() bool {
 	// Replies should have body/parent
-	if post.Body == "" {
+	if post == nil || post.Body == "" {
 		return false
 	}
 	if post.Parent == "" {
@@ -158,7 +158,7 @@ func (vote *Vote) StripForPublish() {
 
 // IsValid ensures that a vote looks valid for submission
 func (vote *Vote) IsValid() bool {
-	if vote.Target == "" {
+	if vote == nil || vote.Target == "" {
 		return false
 	}
 	return true
