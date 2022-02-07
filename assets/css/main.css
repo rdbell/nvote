@@ -96,6 +96,11 @@ input[type="checkbox"] {
 
 [role=button], a button, button, input[type=button], input[type=reset], input[type=submit] {
   font-size: inherit;
+  background: #3cb978;
+}
+
+.post-preview-button {
+  background: #444 !important;
 }
 
 .text-button {

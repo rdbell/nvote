@@ -16,6 +16,7 @@ import (
 func postRoutes(e *echo.Echo) {
 	e.GET("/new", isLoggedIn(isVerified(newPostHandler)))
 	e.POST("/new", isLoggedIn(isVerified(newPostSubmitHandler)))
+	e.POST("/new/preview", isLoggedIn(isVerified(newPostHandler)))
 	e.GET("/p/:id", viewPostHandler)
 	e.GET("/p/:parent/reply", isLoggedIn(isVerified(newPostHandler)))
 }
@@ -113,20 +114,31 @@ func fetchPosts(filters *schemas.PostFilterset) ([]*schemas.Post, error) {
 // newPostHandler serves the New Post page
 func newPostHandler(c echo.Context) error {
 	var page struct {
-		Parent  *schemas.Post
-		Channel string
+		Post   *schemas.Post
+		Parent *schemas.Post
 	}
-	page.Channel = c.Param("channel")
+	page.Post = &schemas.Post{}
+	page.Post.Channel = c.Param("channel")
 	page.Parent = &schemas.Post{}
+
+	// Handle POST request for post preview
+	if c.Bind(page.Post) != nil || (!page.Post.IsValidPost() && !page.Post.IsValidComment()) {
+		page.Post = &schemas.Post{}
+	}
+
+	parentID := c.Param("parent")
+	if page.Post.Parent != "" {
+		parentID = page.Post.Parent
+	}
 
 	pd := new(pageData).Init(c)
 	pd.Title = "New Post"
 
 	// Fill parent info
-	if c.Param("parent") != "" {
+	if parentID != "" {
 		pd.Title = "Reply to Post"
 		var err error
-		page.Parent, err = getPost(c.Param("parent"))
+		page.Parent, err = getPost(parentID)
 		if err != nil || page.Parent == nil {
 			return serveError(c, http.StatusNotFound, errors.New("not found"))
 		}

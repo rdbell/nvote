@@ -1,7 +1,7 @@
 [[define "content"]]
   [[$post := index .Page.Posts 0]]
   [[$postCount := len .Page.Posts]]
-  [[template "parent_post" dict "Post" $post "User" .User "Config" .Config "CsrfToken" .CsrfToken]]
+  [[template "parent_post" dict "Post" $post "User" .User "Config" .Config "CsrfToken" .CsrfToken "Preview" false]]
   <p id="comments">
     [[if eq $post.Title ""]]
       Replies

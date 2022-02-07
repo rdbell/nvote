@@ -25,18 +25,24 @@
         [[end]]
       </p>
       <p class="post-view-tagline">
+        [[if eq $.Preview true]]
+          <span class="red">(post preview)</span>
+        [[else]]
           <span>posted by </span>
           <span><a href="/u/[[$.Post.PubKey]]">[[pubkeyAlias $.Post.PubKey]]</a> [[timeAgo $.Post.CreatedAt]]</span>
           <span>to <a href="/c/[[if eq $.Post.Channel ""]]all[[else]][[$.Post.Channel]][[end]]">[[if eq $.Post.Channel ""]]all[[else]][[$.Post.Channel]][[end]]</a> </span>
+        [[end]]
       </p>
       <div class="post-body">[[if eq $.User.HideImages true]][[renderMarkdownNoImages $.Post.Body]][[else]][[renderMarkdown $.Post.Body]][[end]]</div>
-      <div class="post-actions">
-        <span><a href="#comments">[[$.Post.Children]] comments</a> | </span>
-        <span><a href="#share-box">share</a> | </span>
-        <span><a href="/p/[[$.Post.ID]]/reply">reply</a> | </span>
-        <span><a href="/report/[[$.Post.ID]]">report</a></span>
-        [[template "share_box" dict "Post" $.Post "Config" .Config]]
-      </div>
+      [[if eq $.Preview false]]
+        <div class="post-actions">
+          <span><a href="#comments">[[$.Post.Children]] comments</a> | </span>
+          <span><a href="#share-box">share</a> | </span>
+          <span><a href="/p/[[$.Post.ID]]/reply">reply</a> | </span>
+          <span><a href="/report/[[$.Post.ID]]">report</a></span>
+          [[template "share_box" dict "Post" $.Post "Config" .Config]]
+        </div>
+      [[end]]
     </div>
   </div>
 [[end]]
