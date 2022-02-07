@@ -1,7 +1,7 @@
 [[define "content"]]
   <div class="card" style="padding: 60px; 20px; font-weight: 400;">
     <center><div style="margin-bottom: 20px;">
-      [[if eq .Config.Environment "local"]]
+      [[if eq .Config.Environment "prod"]]
         We recommend running the <a href="[[.Config.RepoLink]]">local client</a> to post &amp; vote. You can select a login method below if you trust this gateway.
         <div>The seed phrase or private key that you use should be specific to [[.Config.SiteName]]. Do not paste values from any cryptocurrency wallets.</div>
       [[else]]
