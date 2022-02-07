@@ -6,7 +6,7 @@
     <div class="card post-body">
       <ul>
       [[range $_, $channel := .Page.Channels]]
-        [[$name := "all"]]
+        [[$name := $channel.Name]]
         [[if eq $channel.Name ""]]
           [[$name = "all"]]
         [[end]]
