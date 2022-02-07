@@ -3,7 +3,6 @@ body {
   width: 100%;
   padding: 0px;
   background-color: rgb(247,249,250);
-  font-size: .95em;
 }
 
 #content {
@@ -65,7 +64,8 @@ a, a:visited {
   flex-wrap: wrap;
 }
 
-.header-content > div {
+.header-content > div, .header-content > div > div {
+  flex-wrap: wrap;
   gap: 8px;
   white-space: nowrap;
 }
@@ -152,6 +152,10 @@ input[type="checkbox"] {
   margin: 5px 0px;
 }
 
+.post-body, .comment-body {
+  font-size: .9em;
+}
+
 .post-body img {
   max-height: 300px;
   max-width: 100%;
@@ -187,7 +191,7 @@ input[type="checkbox"] {
   margin-top: 12px;
 }
 
-.post-actions {
+.post-actions, .post-view-tagline {
   font-size: .6em;
   color: #9e9e9e;
 }
@@ -202,7 +206,6 @@ input[type="checkbox"] {
 }
 
 .post-view-tagline {
-  font-size: .8em;
   margin: 0;
   margin-bottom: 8px;
 }
