@@ -41,7 +41,7 @@
         </div>
         <div class="post-actions">
           <span><a href="/p/[[$.Post.ID]]">[[$.Post.Children]] [[if eq $.Type "post"]]comments[[else]]replies[[end]]</a> | </span>
-          <span><a href="#share-box">share</a> | </span>
+          <span><a href="#share-box-[[$.Post.ID]]">share</a> | </span>
           <span><a href="/p/[[$.Post.ID]]/reply">reply</a> | </span>
           <span><a href="/report/[[$.Post.ID]]">report</a></span>
           [[template "share_box" dict "Post" $.Post "Config" .Config]]

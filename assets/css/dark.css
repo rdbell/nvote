@@ -34,3 +34,7 @@ input[type="text"], textarea {
     border: none;
     color: #c8c8c8;
 }
+
+.modal-content {
+  background: #1C2230;
+}
