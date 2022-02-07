@@ -1,0 +1,17 @@
+[[define "content"]]
+  <div>
+    <h5>
+      top active channels
+    </h5>
+    <div class="card">
+      <ul>
+      [[range $_, $channel := .Page.Channels]]
+        [[if eq $channel ""]]
+          [[$channel = "all"]]
+        [[end]]
+        <li><a href="/c/[[$channel]]">/c/[[$channel]]</a></li>
+      [[end]]
+      <ul>
+    </div>
+  </div>
+[[end]]

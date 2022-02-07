@@ -13,11 +13,40 @@ func indexRoutes(e *echo.Echo) {
 	e.GET("/", indexHandler)
 	e.GET("/about", aboutHandler)
 	e.GET("/recent", activityHandler)
+	e.GET("/explore", exploreHandler)
 }
 
 // indexHandler serves the index page
 func indexHandler(c echo.Context) error {
 	return viewPostsHandler(c)
+}
+
+// exploreHandler serves a list of top channels
+func exploreHandler(c echo.Context) error {
+	var page struct {
+		Channels []string
+	}
+
+	// Query channel top-level post counts
+	rows, err := db.Query(`SELECT DISTINCT(channel), COUNT(channel) AS cnt FROM posts WHERE parent = '' GROUP BY channel ORDER BY cnt DESC`)
+	if err != nil {
+		return serveError(c, http.StatusInternalServerError, err)
+	}
+
+	for rows.Next() {
+		var channel string
+		var count int
+		err = rows.Scan(&channel, &count)
+		if err != nil {
+			return serveError(c, http.StatusInternalServerError, err)
+		}
+		page.Channels = append(page.Channels, channel)
+	}
+
+	pd := new(pageData).Init(c)
+	pd.Title = "Explore"
+	pd.Page = page
+	return c.Render(http.StatusOK, "base:explore", pd)
 }
 
 // activityHandler serves a list of recent activity
