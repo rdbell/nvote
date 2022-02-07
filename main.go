@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -17,28 +18,25 @@ import (
 	"github.com/rdbell/go-nostr"
 )
 
-var environment = ""
 var pool *nostr.RelayPool
 
 func init() {
-	// Set environment
-	environment = os.Getenv("NV_ENVIRONMENT")
-
 	rand.Seed(time.Now().UnixNano())
 
 	// Configure app
-	if environment == "prod" {
-		// TODO: move file into box
+	switch os.Getenv("NV_ENVIRONMENT") {
+	case "prod":
 		appConfig = readConfig("./config_prod.json")
 		schemas.InitConfig(appConfig)
-	} else if environment == "staging" {
-		// TODO: move file into box
-		appConfig = readConfig("./config_staging.json")
+		break
+	case "local":
+		appConfig = readConfig("./config_local.json")
 		schemas.InitConfig(appConfig)
-	} else {
-		// TODO: move file into box
+		break
+	default:
 		appConfig = readConfig("./config_dev.json")
 		schemas.InitConfig(appConfig)
+		break
 	}
 
 	// Load templates
@@ -63,7 +61,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	// Don't perform any re-routing in development environment
-	if environment != "" && environment != "development" {
+	if appConfig.Environment != "" && appConfig.Environment != "development" {
 		e.Pre(httpsRedir)
 	}
 
@@ -95,7 +93,7 @@ func main() {
 	setRoutes(e)
 
 	// Start server
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", appConfig.ListenPort)))
 }
 
 // readConfig reads a config file into an AppConfig struct

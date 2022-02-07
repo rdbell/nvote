@@ -1,6 +1,13 @@
 [[define "content"]]
   <div class="card" style="padding: 60px; 20px; font-weight: 400;">
-    <center><div style="margin-bottom: 20px;">Login Method</div></center>
+    <center><div style="margin-bottom: 20px;">
+      [[if eq .Config.Environment "local"]]
+        We recommend running the <a href="[[.Config.RepoLink]]">local client</a> to post &amp; vote. You can select a login method below if you trust this gateway.
+        <div>The seed phrase or private key that you use should be specific to [[.Config.SiteName]]. Do not paste values from any cryptocurrency wallets.</div>
+      [[else]]
+        Login Method
+      [[end]]
+    </div></center>
     <div class="flex" style="flex-wrap: wrap; justify-content: center; font-size: .8em;">
       <div style="padding: 20px; border: 1px solid #d8dae1;">
         <form action="/login" method="POST">
@@ -18,7 +25,7 @@
         <form action="/login" method="POST">
           <div class="flex" style="flex-direction: column; align-items: center; width: 300px;">
             <p>
-              <label for="seed">Seed Phrase Login (Recommended)</label>
+              <label for="seed">Seed Phrase Login</label>
             </p>
             <input class="w-80" type="text" name="seed" placeholder="piano early guess emerge ...">
             <input type="hidden" name="csrf" value="[[.CsrfToken]]">

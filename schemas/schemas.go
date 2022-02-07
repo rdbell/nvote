@@ -238,13 +238,15 @@ func (login Login) GeneratePrivateKey() (string, error) {
 
 // AppConfig defines the schema for global app config
 type AppConfig struct {
+	Environment          string `json:"environment"`             // environment
 	SiteName             string `json:"site_name"`               // website's name
 	SiteIcon             string `json:"site_icon"`               // website's icon displayed in the header
 	Tagline              string `json:"tagline"`                 // website's tagline
 	SiteURL              string `json:"site_url"`                // webiste's base URL including protocol. no trailing slash
+	ListenPort           int    `json:"listen_port"`             // port to listen on
 	Relay                string `json:"relay"`                   // primary nostr relay endpoint
 	RelayPublic          string `json:"relay_public"`            // publicly accessable relay endpoint
-	RepoLink             string `json:"app_repo"`                // public repo for the project
+	RepoLink             string `json:"repo_link"`               // public repo for the project
 	TelegramLink         string `json:"telegram_link"`           // public telegram group link
 	PubkeyVerifyURL      string `json:"pubkey_verify_url"`       // URL for verifying a user's pubkey with the nostr relay
 	VerifyBaseURL        string `json:"verify_base_url"`         // base URL for a user to submit verification for account
