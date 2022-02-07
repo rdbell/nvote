@@ -7,5 +7,4 @@
 *.out
 vendor/
 nvote
-config_prod.json
 .git
