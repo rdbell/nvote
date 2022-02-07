@@ -1,3 +1,12 @@
+/* Dark theme */
+:root {
+  --accent-bg: #2b2b2b;
+  --border: #666;
+  --accent: #ffb300;
+  --preformatted: #ccc;
+  --disabled: #111;
+}
+
 body {
   background-color: #0A0E17;
   color: #cdcdcd;
