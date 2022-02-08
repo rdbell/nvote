@@ -7,17 +7,25 @@
         recent posts in <a href="/c/[[$channel]]">/c/[[$channel]]</a>
         <div style="font-size: .55em;"><a href="/c/[[$channel]]">view hot &#8594;</a></div>
       [[else]]
-        recent posts by <a href="/u/[[.Page.PubKey]]">/u/[[shortPubkey .Page.PubKey]]</a>
+        recent posts by <a href="/u/[[.Page.PubKey]]">[[pubkeyAlias .Page.PubKey]]</a>
       [[end]]
     </h5>
     [[range $_, $post := .Page.Posts]]
       [[template "post_row" dict "Post" $post "CsrfToken" $.CsrfToken "Type" "post" "Config" $.Config]]
     [[end]]
-    <h5>recent comments</h5>
+    [[if eq .Page.PubKey ""]]
+      <h5>recent comments in <a href="/c/[[$channel]]">/c/[[$channel]]</a></h5>
+    [[else]]
+      recent comments by <a href="/u/[[.Page.PubKey]]">[[pubkeyAlias .Page.PubKey]]</a>
+    [[end]]
     [[range $_, $comment := .Page.Comments]]
       [[template "post_row" dict "Post" $comment "CsrfToken" $.CsrfToken "Type" "comment" "Config" $.Config]]
     [[end]]
-    <h5>recent votes</h5>
+    [[if eq .Page.PubKey ""]]
+      <h5>recent votes in <a href="/c/[[$channel]]">/c/[[$channel]]</a></h5>
+    [[else]]
+      recent votes by <a href="/u/[[.Page.PubKey]]">[[pubkeyAlias .Page.PubKey]]</a>
+    [[end]]
     [[range $_, $vote := .Page.Votes]]
       <div class="card activity-card">
         <a href="/u/[[$vote.PubKey]]">[[pubkeyAlias $vote.PubKey]]</a> [[if eq $vote.Direction false]]<span class="red">downvoted[[else]]<span class="green">upvoted[[end]]</span> <a href="/p/[[$vote.Target]]">[[shortPubkey $vote.Target]]</a> [[timeAgo $vote.CreatedAt]].
