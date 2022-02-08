@@ -109,7 +109,7 @@ func insertVote(event *nostr.Event) error {
 
 // fetchVotes fetches votes for a given set of filters
 func fetchVotes(filters *schemas.VoteFilterset) ([]*schemas.Vote, error) {
-	pubkeyStmt := ""
+	pubkeyStmt := " AND $1 = $1"
 	orderByStmt := ""
 	limitStmt := ""
 	if filters.PubKey != "" {

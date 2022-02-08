@@ -52,8 +52,8 @@ func viewPostsHandler(c echo.Context) error {
 func fetchPosts(filters *schemas.PostFilterset) ([]*schemas.Post, error) {
 	// Post filters
 	// "all" is a special catch-all channel. no need to filter by "all"
-	channelStmt := ""
-	pubkeyStmt := ""
+	channelStmt := " AND $1 = $1"
+	pubkeyStmt := " AND $2 = $2"
 	postTypeStmt := ""
 	badUsersStmt := ""
 	orderByStmt := ""
@@ -87,8 +87,6 @@ func fetchPosts(filters *schemas.PostFilterset) ([]*schemas.Post, error) {
 		limitStmt = fmt.Sprintf("LIMIT %d", filters.Limit)
 	}
 
-	// `LIKE "%"+pubKey` filter fetches all rows if pubkey is empty, but only rows related to the user if pubkey is populated
-	// consider using something like CASE WHEN or COALESCE/NULLIF if it's more performant
 	rows, err := db.Query(fmt.Sprintf(`
 		SELECT id, score, children, pubkey, created_at, title, body, channel, parent
 		FROM posts WHERE TRUE
