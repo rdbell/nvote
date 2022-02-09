@@ -1,49 +1,52 @@
 /* Dark theme */
+
 :root {
-  --accent-bg: #2b2b2b;
-  --border: #666;
-  --accent: #ffb300;
-  --preformatted: #ccc;
-  --disabled: #111;
+    --accent-bg: #2b2b2b;
+    --border: #666;
+    --accent: #ffb300;
+    --preformatted: #ccc;
+    --disabled: #111;
 }
 
 body {
-  background-color: #0A0E17;
-  color: #cdcdcd;
+    background-color: #0A0E17;
+    color: #cdcdcd;
 }
 
 #header {
-  background-color: #1C2230;
+    background-color: #1C2230;
 }
 
-a, a:visited {
-  color: #fff;
+a,
+a:visited {
+    color: #fff;
 }
 
 .text-button {
-  color: #fff !important;
-  background-color: inherit !important;
+    color: #fff !important;
+    background-color: inherit !important;
 }
 
 .card {
-  background-color: #1C2230;
-  border: 1px solid #373738;
+    background-color: #1C2230;
+    border: 1px solid #373738;
 }
 
 footer {
-  border-top: 1px solid #373738;
+    border-top: 1px solid #373738;
 }
 
 td {
-  border: 1px solid #9b9b9b;
+    border: 1px solid #9b9b9b;
 }
 
-input[type="text"], textarea {
+input[type="text"],
+textarea {
     background: rgb(10, 14, 24);
     border: none;
     color: #c8c8c8;
 }
 
 .modal-content {
-  background: #1C2230;
+    background: #1C2230;
 }
