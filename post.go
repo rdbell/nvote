@@ -9,7 +9,6 @@ import (
 	"github.com/rdbell/nvote/schemas"
 
 	"github.com/labstack/echo/v4"
-	"github.com/rdbell/go-nostr"
 )
 
 // postRoutes sets up post-related routes
@@ -247,33 +246,18 @@ func getPostTree(id string, depth int) []*schemas.Post {
 }
 
 // insertPost inserts a post event into the DB
-func insertPost(e *nostr.Event) error {
-	// Parse post
-	post := &schemas.Post{}
-	err := json.Unmarshal([]byte(e.Content), post)
-	if err != nil {
-		return err
-	}
-
-	// Don't insert invalid posts
-	if !post.IsValidPost() && !post.IsValidComment() {
-		return errors.New("invalid post")
-	}
-
-	post.ID = e.ID
-	post.CreatedAt = e.CreatedAt
-	post.PubKey = e.PubKey
-
+func insertPost(post *schemas.Post) error {
 	// Fill channel field for replies
 	if post.IsValidComment() {
 		post.Channel = getTopParentChannel(post.Parent)
 	}
 
+	// Sanitize before insert
 	post.Sanitize()
 
 	// Query poster's information
 	userScore := 0
-	err = db.QueryRow(`SELECT user_score FROM users WHERE pubkey = ?`, post.PubKey).Scan(&userScore)
+	err := db.QueryRow(`SELECT user_score FROM users WHERE pubkey = ?`, post.PubKey).Scan(&userScore)
 	if err != nil {
 		// User doesn't exist in users table yet. Insert
 		_, err := db.Exec(`INSERT INTO users(pubkey, user_score) VALUES(?,?)`, post.PubKey, 0)

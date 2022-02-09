@@ -7,7 +7,7 @@
   "site_icon": "↑",
   "repo_link": "https://www.github.com/rdbell/nvote",
   "telegram_link": "https://t.me/nvote_app",
-  "relay": "ws://localhost:7447",
+  "relays": ["ws://localhost:7447", "ws://localhost:7448"],
   "relay_public": "ws://external.com:7447",
   "verify_base_url": "http://localhost:7447",
   "check_verified_base_url": "http://localhost:7447/check_registration",

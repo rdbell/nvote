@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"time"
 
@@ -77,7 +76,13 @@ func setupVotesTable() {
 // fetchEvents sets up the nostr relay pool and subscribes to events
 func fetchEvents() {
 	pool = nostr.NewRelayPool()
-	checkErr.Panic(pool.Add(appConfig.Relay, &nostr.SimplePolicy{Read: true, Write: true}))
+	for _, relay := range appConfig.Relays {
+		pool.Add(relay, &nostr.SimplePolicy{Read: true, Write: true})
+	}
+
+	if len(pool.Relays) == 0 {
+		panic("no reachable relays")
+	}
 
 	go func() {
 		for notice := range pool.Notices {
@@ -99,12 +104,17 @@ func fetchEvents() {
 				continue
 			}
 
-			// TODO: also return status code to prevent trying insertPost if it was a vote but didn't succeed?
-			if insertVote(&event) == nil {
+			// Attempt vote insert
+			if vote, err := schemas.VoteFromEvent(&event); err == nil {
+				insertVote(vote)
 				continue
 			}
 
-			insertPost(&event)
+			// Attempt post insert
+			if post, err := schemas.PostFromEvent(&event); err == nil {
+				insertPost(post)
+				continue
+			}
 		}
 	}()
 }
@@ -136,38 +146,14 @@ func publishEvent(c echo.Context, content []byte) (*nostr.Event, error) {
 	}
 
 	// Publish event
-	result, publishStatus, err := pool.PublishEvent(event)
+	result, _, err := pool.PublishEvent(event)
 	if err != nil {
 		return result, err
 	}
 
-	for {
-		select {
-		case status, ok := <-publishStatus:
-			if !ok {
-				return event, errors.New("unable to publish")
-			}
+	// TODO: wait for an event that fires after the post is inserted into the sqlite db
+	// to prevent redirecting too early
+	time.Sleep(1 * time.Second)
 
-			// Sent
-			if status.Status == 0 {
-				fmt.Println("Event sent.")
-				time.Sleep(1 * time.Second)
-			}
-
-			// Send failed
-			if status.Status == -1 {
-				return result, errors.New("failed to publish event")
-			}
-
-			// Sent successfully
-			if status.Status == 1 {
-				// Redirect to post
-				// TODO: use another event channel that waits for an event that fires after the post is inserted into the sqlite db
-				// to prevent redirecting too early
-				return result, nil
-			}
-		case <-time.After(time.Second * 10):
-			return event, errors.New("timeout during publish")
-		}
-	}
+	return result, nil
 }

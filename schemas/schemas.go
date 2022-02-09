@@ -3,11 +3,13 @@ package schemas
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"regexp"
 	"strings"
 
 	"github.com/microcosm-cc/bluemonday"
+	"github.com/rdbell/go-nostr"
 	"github.com/rdbell/go-nostr/nip06"
 )
 
@@ -52,6 +54,28 @@ func (post *Post) IsValidComment() bool {
 	}
 
 	return true
+}
+
+// PostFromEvent returns a *Post for a supplied nostr event
+func PostFromEvent(event *nostr.Event) (*Post, error) {
+	// Unmarshal event content
+	post := &Post{}
+	err := json.Unmarshal([]byte(event.Content), post)
+	if err != nil {
+		return nil, errors.New("unable to unmarshal post")
+	}
+
+	// Pull event ID, ts and pubkey from event
+	post.ID = event.ID
+	post.CreatedAt = event.CreatedAt
+	post.PubKey = event.PubKey
+
+	// Validate
+	if !post.IsValidPost() && !post.IsValidComment() {
+		return nil, errors.New("invalid post")
+	}
+
+	return post, err
 }
 
 // PrepareForPublish strips superflous parameters to prepare for publishing (omitempty)
@@ -164,6 +188,27 @@ func (vote *Vote) IsValid() bool {
 	return true
 }
 
+// VoteFromEvent returns a *Vote for a supplied nostr event
+func VoteFromEvent(event *nostr.Event) (*Vote, error) {
+	// Unmarshal event content
+	vote := &Vote{}
+	err := json.Unmarshal([]byte(event.Content), vote)
+	if err != nil {
+		return nil, errors.New("unable to unmarshal vote")
+	}
+
+	// Pull ts and pubkey from event
+	vote.CreatedAt = event.CreatedAt
+	vote.PubKey = event.PubKey
+
+	// Validate
+	if !vote.IsValid() {
+		return nil, errors.New("invalid vote")
+	}
+
+	return vote, err
+}
+
 // VoteFilterset defines a set of filters for querying votes
 type VoteFilterset struct {
 	PubKey        string // filter by submitter's pubkey
@@ -238,20 +283,20 @@ func (login Login) GeneratePrivateKey() (string, error) {
 
 // AppConfig defines the schema for global app config
 type AppConfig struct {
-	Environment          string `json:"environment"`             // environment
-	SiteName             string `json:"site_name"`               // website's name
-	SiteIcon             string `json:"site_icon"`               // website's icon displayed in the header
-	Tagline              string `json:"tagline"`                 // website's tagline
-	SiteURL              string `json:"site_url"`                // webiste's base URL including protocol. no trailing slash
-	ListenPort           int    `json:"listen_port"`             // port to listen on
-	Relay                string `json:"relay"`                   // primary nostr relay endpoint
-	RelayPublic          string `json:"relay_public"`            // publicly accessable relay endpoint
-	RepoLink             string `json:"repo_link"`               // public repo for the project
-	TelegramLink         string `json:"telegram_link"`           // public telegram group link
-	PubkeyVerifyURL      string `json:"pubkey_verify_url"`       // URL for verifying a user's pubkey with the nostr relay
-	VerifyBaseURL        string `json:"verify_base_url"`         // base URL for a user to submit verification for account
-	CheckVerifiedBaseURL string `json:"check_verified_base_url"` // base URL for checking if a user is registered with the nostr relay
-	TitleMaxCharacters   int    `json:"title_max_characters"`    // maximum allowed characters in a post title
-	BodyMaxCharacters    int    `json:"body_max_characters"`     // maximum allowed characters in a post/comment body
-	ChannelMaxCharacters int    `json:"channel_max_characters"`  // maximum allowed characters in a channel name
+	Environment          string   `json:"environment"`             // environment
+	SiteName             string   `json:"site_name"`               // website's name
+	SiteIcon             string   `json:"site_icon"`               // website's icon displayed in the header
+	Tagline              string   `json:"tagline"`                 // website's tagline
+	SiteURL              string   `json:"site_url"`                // webiste's base URL including protocol. no trailing slash
+	ListenPort           int      `json:"listen_port"`             // port to listen on
+	Relays               []string `json:"relays"`                  // nostr relay endpoints
+	RelayPublic          string   `json:"relay_public"`            // publicly accessable relay endpoint
+	RepoLink             string   `json:"repo_link"`               // public repo for the project
+	TelegramLink         string   `json:"telegram_link"`           // public telegram group link
+	PubkeyVerifyURL      string   `json:"pubkey_verify_url"`       // URL for verifying a user's pubkey with the nostr relay
+	VerifyBaseURL        string   `json:"verify_base_url"`         // base URL for a user to submit verification for account
+	CheckVerifiedBaseURL string   `json:"check_verified_base_url"` // base URL for checking if a user is registered with the nostr relay
+	TitleMaxCharacters   int      `json:"title_max_characters"`    // maximum allowed characters in a post title
+	BodyMaxCharacters    int      `json:"body_max_characters"`     // maximum allowed characters in a post/comment body
+	ChannelMaxCharacters int      `json:"channel_max_characters"`  // maximum allowed characters in a channel name
 }

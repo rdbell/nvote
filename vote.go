@@ -10,7 +10,6 @@ import (
 	"github.com/rdbell/nvote/schemas"
 
 	"github.com/labstack/echo/v4"
-	"github.com/rdbell/go-nostr"
 )
 
 // voteRoutes sets up vote-related routes
@@ -57,21 +56,14 @@ func alreadyVoted(target string, pubkey string) bool {
 }
 
 // insertVote inserts a vote event into the DB
-func insertVote(event *nostr.Event) error {
-	// Parse vote
-	vote := &schemas.Vote{}
-	err := json.Unmarshal([]byte(event.Content), vote)
-	if err != nil {
-		return err
-	}
-
-	// Ensure valid vote (no target, already voted)
-	if !vote.IsValid() || alreadyVoted(vote.Target, event.PubKey) {
-		return errors.New("invalid vote")
+func insertVote(vote *schemas.Vote) error {
+	// Ensure the user hasn't already voted on this target
+	if alreadyVoted(vote.Target, vote.PubKey) {
+		return errors.New("already voted")
 	}
 
 	// Add to DB
-	_, err = db.Exec(`INSERT INTO votes(pubkey, target, direction, created_at) VALUES(?,?,?,?)`, event.PubKey, vote.Target, vote.Direction, event.CreatedAt)
+	_, err := db.Exec(`INSERT INTO votes(pubkey, target, direction, created_at) VALUES(?,?,?,?)`, vote.PubKey, vote.Target, vote.Direction, vote.CreatedAt)
 	if err != nil {
 		return err
 	}
