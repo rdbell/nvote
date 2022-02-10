@@ -20,8 +20,8 @@
         <div class="post-row-title">
           [[$href := (printf "/p/%s" $.Post.ID)]]
           [[if eq $.Type "post"]]
-            [[if ne (trimmedURL $.Post.Body) ""]]
-              [[$href = (trimmedURL $.Post.Body)]]
+            [[if ne (whitespaceTrimmedURL $.Post.Body) ""]]
+              [[$href = (whitespaceTrimmedURL $.Post.Body)]]
             [[end]]
           [[end]]
           <a href="[[$href]]">
@@ -29,7 +29,17 @@
             </a>
           </div>
         <div class="post-actions">
-          <span>posted by </span>
+          <span>
+            [[if eq (contentType $.Post.Body) "image"]]
+              🖼️ 
+            [[else if eq (contentType $.Post.Body) "link"]]
+              🔗
+            [[else]]
+              💬
+            [[end]]
+            &nbsp;
+          </span>
+          <span> posted by </span>
           <span><a href="/u/[[$.Post.PubKey]]">[[pubkeyAlias $.Post.PubKey]]</a></span>
           [[if eq $.Type "post"]]
             <span>to <a href="/c/[[if eq $.Post.Channel ""]]all[[else]][[$.Post.Channel]][[end]]">[[if eq $.Post.Channel ""]]all[[else]][[$.Post.Channel]][[end]]</a> </span>

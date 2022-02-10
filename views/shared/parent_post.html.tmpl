@@ -25,12 +25,24 @@
         [[end]]
       </p>
       <p class="post-view-tagline">
+        [[/* TODO: turn tagline into a template, consolidate with the similar block in post_row.html.tmpl */]]
         [[if eq $.Preview true]]
           <span class="red">(post preview)</span>
         [[else]]
+          <span>
+            [[if eq (contentType $.Post.Body) "image"]]
+              🖼️ 
+            [[else if eq (contentType $.Post.Body) "link"]]
+              🔗
+            [[else]]
+              💬
+            [[end]]
+            &nbsp;
+          </span>
           <span>posted by </span>
-          <span><a href="/u/[[$.Post.PubKey]]">[[pubkeyAlias $.Post.PubKey]]</a> [[timeAgo $.Post.CreatedAt]]</span>
+          <span><a href="/u/[[$.Post.PubKey]]">[[pubkeyAlias $.Post.PubKey]]</a> </span>
           <span>to <a href="/c/[[if eq $.Post.Channel ""]]all[[else]][[$.Post.Channel]][[end]]">[[if eq $.Post.Channel ""]]all[[else]][[$.Post.Channel]][[end]]</a> </span>
+          <span>[[timeAgo $.Post.CreatedAt]]</span>
         [[end]]
       </p>
       <div class="post-body">[[if eq $.User.HideImages true]][[renderMarkdownNoImages $.Post.Body]][[else]][[renderMarkdown $.Post.Body]][[end]]</div>

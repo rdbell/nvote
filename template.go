@@ -131,13 +131,13 @@ func loadTemplates(box *packr.Box) {
 			return s
 		},
 		"pubkeyAlias": pubkeyAlias,
-		"trimmedURL": func(s string) string {
-			if _, err := imageLink(s); err == nil {
+		"whitespaceTrimmedURL": func(s string) string {
+			// Don't return trimmed URL for images
+			if _, err := stringToImageURL(s); err == nil {
 				return ""
 			}
 
-			s = strings.TrimSpace(s)
-			u, err := url.ParseRequestURI(s)
+			u, err := stringToURL(s)
 			if err != nil {
 				return ""
 			}
@@ -146,31 +146,36 @@ func loadTemplates(box *packr.Box) {
 		"renderMarkdown": func(s string) template.HTML {
 			// If post is just an image link and nothing else, turn it into an inline image
 			// TODO: do the same for all image links in body?
-			u, err := imageLink(s)
+			u, err := stringToImageURL(s)
 			if err == nil {
 				s = `[![](` + u.String() + ` "")](` + u.String() + `)`
 			}
 
-			// Render markdown and sanitize HTML, lazy load images
-			parser := parser.NewWithExtensions(parser.Autolink | parser.Strikethrough | parser.HardLineBreak | parser.NonBlockingSpace)
-
-			//renderer := html.NewRenderer(html.RendererOptions{Flags: html.LazyLoadImages})
-			//return template.HTML(bluemonday.UGCPolicy().Sanitize(string(markdown.ToHTML([]byte(s), parser, renderer))))
-
-			// Render markdown and sanitize
+			// Render markdown, sanitize HTML, lazy-load images
 			// bluemonday seems to strip loading=lazy param. Manually add it.
+			parser := parser.NewWithExtensions(parser.Autolink | parser.Strikethrough | parser.HardLineBreak | parser.NonBlockingSpace)
 			return template.HTML(strings.Replace(bluemonday.UGCPolicy().Sanitize(string(markdown.ToHTML([]byte(s), parser, nil))), "<img src", "<img loading=\"lazy\" src", -1))
 		},
 		"renderMarkdownNoImages": func(s string) template.HTML {
-			// Render markdown and sanitize HTML, turn images into links
-			// Replace <img> with <a>
+			// Render markdown
 			parser := parser.NewWithExtensions(parser.Autolink | parser.Strikethrough | parser.HardLineBreak | parser.NonBlockingSpace)
 			html := markdown.ToHTML([]byte(s), parser, nil)
+
+			// Replace <img> tags with <a>
 			var re = regexp.MustCompile(`<img .*src="([^"]+)".*>`)
 			html = []byte(re.ReplaceAllString(string(html), `<a href="$1">$1</a>`))
 
-			// Render markdown and sanitize HTML
+			// Sanitize HTML
 			return template.HTML(bluemonday.UGCPolicy().Sanitize(string(html)))
+		},
+		"contentType": func(s string) string {
+			if _, err := stringToImageURL(s); err == nil {
+				return "image"
+			}
+			if _, err := stringToURL(s); err == nil {
+				return "link"
+			}
+			return "text"
 		},
 		"score": func(score int32) int32 {
 			if score < 0 {
@@ -245,8 +250,8 @@ func loadTemplates(box *packr.Box) {
 	}
 }
 
-// imageLink returns true if the provided string is a link to an image
-func imageLink(s string) (*url.URL, error) {
+// stringToImageURL returns a *url.URL if the provided string is a link to an image
+func stringToImageURL(s string) (*url.URL, error) {
 	if len(s) < 15 {
 		return nil, errors.New("link is too short")
 	}
@@ -262,4 +267,17 @@ func imageLink(s string) (*url.URL, error) {
 		return u, nil
 	}
 	return nil, errors.New("not an image link")
+}
+
+// stringToURL returns a *url.URL if the provided string is a link
+func stringToURL(s string) (*url.URL, error) {
+	if len(s) < 10 {
+		return nil, errors.New("link is too short")
+	}
+	s = strings.TrimSpace(s)
+	u, err := url.ParseRequestURI(s)
+	if err != nil {
+		return nil, errors.New("unable to parse URL")
+	}
+	return u, nil
 }
