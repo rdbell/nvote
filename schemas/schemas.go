@@ -5,10 +5,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"html"
 	"regexp"
 	"strings"
 
-	"github.com/microcosm-cc/bluemonday"
 	"github.com/rdbell/go-nostr"
 	"github.com/rdbell/go-nostr/nip06"
 )
@@ -120,9 +120,9 @@ func (post *Post) Sanitize() {
 	}
 	post.Channel = strings.ToLower(reg.ReplaceAllString(post.Channel, ""))
 
-	// Strip HTML from title and body
-	post.Title = bluemonday.StrictPolicy().Sanitize(post.Title)
-	post.Body = bluemonday.StrictPolicy().Sanitize(post.Body)
+	// Unescape HTML in title and body
+	post.Title = html.UnescapeString(post.Title)
+	post.Body = html.UnescapeString(post.Body)
 
 	// Enforce title limit -- add x1.2 buffer for HTML escape characters
 	// client side form should not include buffer

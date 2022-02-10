@@ -87,12 +87,6 @@ func loadTemplates(box *packr.Box) {
 		"floatToString": func(val float32) string {
 			return fmt.Sprintf("%.2f", val)
 		},
-		"titleCase": func(input string) string {
-			return strings.Title(input)
-		},
-		"toUpper": func(input string) string {
-			return strings.ToUpper(input)
-		},
 		"timeAgo": func(ts uint32) string {
 			t := time.Unix(int64(ts), 0)
 			timeAgo, err := timeago.TimeAgoWithTime(time.Now(), t)
@@ -101,9 +95,6 @@ func loadTemplates(box *packr.Box) {
 			}
 
 			return strings.ToLower(timeAgo)
-		},
-		"timeToString": func(t time.Time) string {
-			return t.Format("2006-01-02")
 		},
 		"cacheBuster": func() string {
 			return cacheBuster
@@ -115,12 +106,17 @@ func loadTemplates(box *packr.Box) {
 			}
 			return s
 		},
-		"unescape": func(s string) template.HTML {
-			return template.HTML(s)
+		"joinStrings": func(ss []string) string {
+			return strings.Join(ss[:], ",")
+		},
+		"sanitize": func(s string) template.HTML {
+			// Sanitize HTML
+			sanitized := bluemonday.UGCPolicy().Sanitize(s)
+			return template.HTML(sanitized)
 		},
 		"shortBody": func(s string) string {
 			if len(s) > 64 {
-				return (s[0:64]) + "..."
+				return s[0:64] + "..."
 			}
 			return s
 		},
@@ -151,10 +147,15 @@ func loadTemplates(box *packr.Box) {
 				s = `[![](` + u.String() + ` "")](` + u.String() + `)`
 			}
 
-			// Render markdown, sanitize HTML, lazy-load images
-			// bluemonday seems to strip loading=lazy param. Manually add it.
+			// Render markdown
 			parser := parser.NewWithExtensions(parser.Autolink | parser.Strikethrough | parser.HardLineBreak | parser.NonBlockingSpace)
-			return template.HTML(strings.Replace(bluemonday.UGCPolicy().Sanitize(string(markdown.ToHTML([]byte(s), parser, nil))), "<img src", "<img loading=\"lazy\" src", -1))
+			html := string(markdown.ToHTML([]byte(s), parser, nil))
+
+			// Sanitize HTML
+			sanitized := bluemonday.UGCPolicy().Sanitize(html)
+
+			// bluemonday seems to strip loading=lazy param. Manually add it.
+			return template.HTML(strings.Replace(sanitized, "<img src", "<img loading=\"lazy\" src", -1))
 		},
 		"renderMarkdownNoImages": func(s string) template.HTML {
 			// Render markdown
@@ -166,7 +167,8 @@ func loadTemplates(box *packr.Box) {
 			html = []byte(re.ReplaceAllString(string(html), `<a href="$1">$1</a>`))
 
 			// Sanitize HTML
-			return template.HTML(bluemonday.UGCPolicy().Sanitize(string(html)))
+			sanitized := bluemonday.UGCPolicy().Sanitize(string(html))
+			return template.HTML(sanitized)
 		},
 		"contentType": func(s string) string {
 			if _, err := stringToImageURL(s); err == nil {

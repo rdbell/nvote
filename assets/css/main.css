@@ -331,3 +331,14 @@ tr:nth-child(even) {
 .justify-center {
     justify-content: center;
 }
+
+.debug-banner {
+    position: fixed;
+    bottom: 0;
+    font-size: .7em;
+    background: #fff;
+    padding: 0px 12px;
+    color: red;
+    padding: 12px;
+    border: 1px solid #000;
+}

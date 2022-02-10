@@ -25,7 +25,7 @@
             [[end]]
           [[end]]
           <a href="[[$href]]">
-            [[if eq $.Type "post"]][[unescape $.Post.Title]][[else]][[unescape (shortBody $.Post.Body)]][[end]]
+            [[if eq $.Type "post"]][[sanitize $.Post.Title]][[else]][[sanitize (shortBody $.Post.Body)]][[end]]
             </a>
           </div>
         <div class="post-actions">

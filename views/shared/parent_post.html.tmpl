@@ -21,7 +21,7 @@
         [[if eq $.Post.Title ""]]
           <a href="/p/[[$.Post.Parent]]">View Parent ↑</a>
         [[else]]
-          [[unescape $.Post.Title]]
+          [[sanitize $.Post.Title]]
         [[end]]
       </p>
       <p class="post-view-tagline">

@@ -47,9 +47,12 @@
   <div id="content">
     [[template "content" .]]
   </div>
+  [[if eq .Config.Environment "dev"]]
+    <div class="debug-banner">
+      Development mode. Relays: [[joinStrings .Config.Relays]]
+    </div>
+  [[end]]
 </body>
-
 [[template "footer" .]]
-
 </html>
 [[end]]
