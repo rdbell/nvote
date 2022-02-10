@@ -16,44 +16,48 @@
       </form>
     </div>
     <div>
+      [[$channel := $.Post.Channel]]
+      [[if eq $channel ""]]
+        [[$channel = "all"]]
+      [[end]]
       <p class="post-view-title">
         [[/* TODO: Show parent preview or something else here */]]
         [[if eq $.Post.Title ""]]
           <a href="/p/[[$.Post.Parent]]">View Parent ↑</a>
         [[else]]
-          [[sanitize $.Post.Title]]
+          [[template "post_title" dict "Channel" $channel "Type" "post" "Post" $.Post]]
         [[end]]
       </p>
+      [[/* TODO: turn tagline into a template, consolidate with the similar block in post_row.html.tmpl */]]
       <p class="post-view-tagline">
-        [[/* TODO: turn tagline into a template, consolidate with the similar block in post_row.html.tmpl */]]
+        [[$pubkey := $.Post.PubKey]]
+        [[$time := (timeAgo $.Post.CreatedAt)]]
         [[if eq $.Preview true]]
-          <span class="red">(post preview)</span>
-        [[else]]
-          <span>
-            [[if eq (contentType $.Post.Body) "image"]]
-              🖼️ 
-            [[else if eq (contentType $.Post.Body) "link"]]
-              🔗
-            [[else]]
-              💬
-            [[end]]
-            &nbsp;
-          </span>
-          <span>posted by </span>
-          <span><a href="/u/[[$.Post.PubKey]]">[[pubkeyAlias $.Post.PubKey]]</a> </span>
-          <span>to <a href="/c/[[if eq $.Post.Channel ""]]all[[else]][[$.Post.Channel]][[end]]">[[if eq $.Post.Channel ""]]all[[else]][[$.Post.Channel]][[end]]</a> </span>
-          <span>[[timeAgo $.Post.CreatedAt]]</span>
+          [[$pubkey = $.User.PubKey]]
+          [[$time = "just now"]]
         [[end]]
+        <span>posted by </span>
+        <span><a href="/u/[[$pubkey]]">[[pubkeyAlias $pubkey]]</a> </span>
+        <span>to <a href="/c/[[$channel]]">[[$channel]]</a> </span>
+        <span>[[$time]]</span>
       </p>
-      <div class="post-body">[[if eq $.User.HideImages true]][[renderMarkdownNoImages $.Post.Body]][[else]][[renderMarkdown $.Post.Body]][[end]]</div>
-      [[if eq $.Preview false]]
-        <div class="post-actions">
-          <span><a href="#comments">[[$.Post.Children]] comments</a> | </span>
-          <span><a href="#share-box-[[$.Post.ID]]">share</a> | </span>
-          <span><a href="/p/[[$.Post.ID]]/reply">reply</a> | </span>
-          <span><a href="/report/[[$.Post.ID]]">report</a></span>
-          [[template "share_box" dict "Post" $.Post "Config" .Config]]
+      [[if shouldDisplayBody $.Post $.User.HideImages]]
+        <div class="post-body">
+          [[if eq $.User.HideImages true]]
+            [[renderMarkdownNoImages $.Post.Body]]
+          [[else]]
+            [[renderMarkdown $.Post.Body]]
+          [[end]]
         </div>
+      [[end]]
+      <div class="post-actions">
+        <span><a href="#comments">[[$.Post.Children]] comments</a> | </span>
+        <span><a href="#share-box-[[$.Post.ID]]">share</a> | </span>
+        <span><a href="/p/[[$.Post.ID]]/reply">reply</a></span>
+        [[template "share_box" dict "Post" $.Post "Config" .Config]]
+      </div>
+      [[if eq $.Preview true]]
+        <div class="red" style="font-size: .7em; margin-top: 8px;">(post preview)</div>
       [[end]]
     </div>
   </div>

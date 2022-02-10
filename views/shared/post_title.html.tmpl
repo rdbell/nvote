@@ -1,0 +1,20 @@
+[[define "post_title"]]
+  [[$href := (printf "/p/%s" $.Post.ID)]]
+  [[if eq $.Type "post"]]
+    [[if ne (whitespaceTrimmedURL $.Post.Body) ""]]
+      [[$href = (whitespaceTrimmedURL $.Post.Body)]]
+    [[end]]
+  [[end]]
+  <a href="[[$href]]">
+    [[if eq $.Type "post"]][[sanitize $.Post.Title]][[else]][[sanitize (shortBody $.Post.Body)]][[end]]
+  </a>
+  <span class="post-content-type">
+    [[if eq (contentType $.Post.Body) "image"]]
+      (image.[[sanitize $.Channel]])
+    [[else if eq (contentType $.Post.Body) "link"]]
+      ([[sanitize (linkDomain $.Post.Body)]])
+    [[else]]
+      (self.[[sanitize $.Channel]])
+    [[end]]
+  </span>
+[[end]]

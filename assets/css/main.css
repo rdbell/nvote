@@ -216,6 +216,7 @@ input[type=submit] {
 }
 
 .post-view-title {
+    font-size: .9em;
     padding: 0;
     margin-block: 0;
 }
@@ -341,4 +342,8 @@ tr:nth-child(even) {
     color: red;
     padding: 12px;
     border: 1px solid #000;
+}
+
+.post-content-type {
+    font-size: .5em;
 }

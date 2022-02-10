@@ -126,6 +126,25 @@ func loadTemplates(box *packr.Box) {
 			}
 			return s
 		},
+		"linkDomain": func(s string) string {
+			// Parse URL
+			u, err := stringToURL(s)
+			if err != nil {
+				fmt.Println(err)
+				return ""
+			}
+
+			// Extract just domain
+			parts := strings.Split(u.Hostname(), ".")
+			domain := parts[len(parts)-2] + "." + parts[len(parts)-1]
+
+			// Truncate long domains
+			if len(domain) > 32 {
+				return domain[0:32] + "..."
+			}
+
+			return domain
+		},
 		"pubkeyAlias": pubkeyAlias,
 		"whitespaceTrimmedURL": func(s string) string {
 			// Don't return trimmed URL for images
@@ -171,12 +190,17 @@ func loadTemplates(box *packr.Box) {
 			return template.HTML(sanitized)
 		},
 		"contentType": func(s string) string {
+			// Detect image link
 			if _, err := stringToImageURL(s); err == nil {
 				return "image"
 			}
+
+			// Detect non-imgate link
 			if _, err := stringToURL(s); err == nil {
 				return "link"
 			}
+
+			// Text post
 			return "text"
 		},
 		"score": func(score int32) int32 {
@@ -184,6 +208,25 @@ func loadTemplates(box *packr.Box) {
 				return 0
 			}
 			return score
+		},
+		"shouldDisplayBody": func(post *schemas.Post, hideImages bool) bool {
+			// Always display body for replies
+			if post.Parent != "" {
+				return true
+			}
+
+			// Display body if the post is an image
+			if _, err := stringToImageURL(post.Body); err == nil {
+				return true
+			}
+
+			// Don't display body if the post is a link
+			if _, err := stringToURL(post.Body); err == nil {
+				return false
+			}
+
+			// Display body for text posts
+			return true
 		},
 		"dict": func(values ...interface{}) (map[string]interface{}, error) {
 			if len(values)%2 != 0 {
