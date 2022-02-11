@@ -167,16 +167,18 @@ type PostFilterset struct {
 type Vote struct {
 	PubKey    string `json:"pubkey,omitempty" form:"pubkey"`        // vote owner's public key
 	Target    string `json:"target,omitempty" form:"target"`        // the post being voted on
+	Channel   string `json:"channel,omitempty" form:"channel"`      // the target vote's channel
 	CreatedAt uint32 `json:"create_at,omitempty" form:"created_at"` // vote timestamp
 	Direction bool   `json:"direction,omitempty" form:"direction"`  // false=down, true=up
 }
 
-// StripForPublish strips superflous parameters to prepare for publishing (omitempty)
+// PrepareForPublish strips superflous parameters to prepare for publishing (omitempty)
 // this is mainly to reduce nostr event content size
 // clients shouldn't assume all post events received from relays have superflous parameters stripped
-func (vote *Vote) StripForPublish() {
+func (vote *Vote) PrepareForPublish() {
 	vote.PubKey = ""
 	vote.CreatedAt = 0
+	vote.Channel = ""
 	return
 }
 
@@ -212,6 +214,7 @@ func VoteFromEvent(event *nostr.Event) (*Vote, error) {
 // VoteFilterset defines a set of filters for querying votes
 type VoteFilterset struct {
 	PubKey        string // filter by submitter's pubkey
+	Channel       string // filter by vote target's channel
 	OrderByColumn string // which column to use for sorting
 	Limit         int    // limit # of rows returnd
 	// TODO: sort direction?

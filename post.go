@@ -70,7 +70,7 @@ func fetchPosts(filters *schemas.PostFilterset) ([]*schemas.Post, error) {
 	}
 	if filters.OrderByColumn != "" {
 		// OrderByColumn should never be set by a user's input, in order to prevent sql injection
-		// but use a whitelist just in case this rule is every violated somewhere
+		// but use a whitelist just in case this rule is ever violated somewhere
 		if filters.OrderByColumn != "created_at" &&
 			filters.OrderByColumn != "score" &&
 			filters.OrderByColumn != "ranking" {
@@ -79,7 +79,6 @@ func fetchPosts(filters *schemas.PostFilterset) ([]*schemas.Post, error) {
 		orderByStmt = fmt.Sprintf(" ORDER BY %s DESC", filters.OrderByColumn)
 	}
 	if filters.HideBadUsers {
-		// TODO: is this value ok?
 		badUsersStmt = " AND user_score > -20 "
 	}
 	if filters.Limit > 0 {

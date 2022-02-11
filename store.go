@@ -65,9 +65,10 @@ func setupUsersTable() {
 // setupVotesTable initializes the votes table in SQLite
 func setupVotesTable() {
 	_, err := db.Exec(`
-	create table votes (pubkey TEXT, target TEXT, direction BOOLEAN, created_at INTEGER);
+	create table votes (pubkey TEXT, target TEXT, channel TEXT, direction BOOLEAN, created_at INTEGER);
 	create INDEX votes_pubkey ON votes(pubkey);
 	create INDEX votes_target ON votes(target);
+	create INDEX votes_channel ON votes(channel);
 	delete from votes;
 	`)
 	checkErr.Panic(err)

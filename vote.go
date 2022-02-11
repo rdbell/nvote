@@ -30,7 +30,7 @@ func voteSubmitHandler(c echo.Context) error {
 	}
 
 	// Serialize content
-	vote.StripForPublish()
+	vote.PrepareForPublish()
 	content, err := json.Marshal(vote)
 	if err != nil {
 		return serveError(c, http.StatusInternalServerError, err)
@@ -62,8 +62,14 @@ func insertVote(vote *schemas.Vote) error {
 		return errors.New("already voted")
 	}
 
+	// Query parent for channel
+	parent, err := getPost(vote.Target)
+	if err == nil && parent != nil {
+		vote.Channel = parent.Channel
+	}
+
 	// Add to DB
-	_, err := db.Exec(`INSERT INTO votes(pubkey, target, direction, created_at) VALUES(?,?,?,?)`, vote.PubKey, vote.Target, vote.Direction, vote.CreatedAt)
+	_, err = db.Exec(`INSERT INTO votes(pubkey, target, channel, direction, created_at) VALUES(?,?,?,?,?)`, vote.PubKey, vote.Target, vote.Channel, vote.Direction, vote.CreatedAt)
 	if err != nil {
 		return err
 	}
@@ -102,17 +108,21 @@ func insertVote(vote *schemas.Vote) error {
 // fetchVotes fetches votes for a given set of filters
 func fetchVotes(filters *schemas.VoteFilterset) ([]*schemas.Vote, error) {
 	pubkeyStmt := " AND $1 = $1"
+	channelStmt := " AND $2 = $2"
 	orderByStmt := ""
 	limitStmt := ""
 	if filters.PubKey != "" {
 		pubkeyStmt = " AND pubkey = $1"
+	}
+	if filters.Channel != "" && filters.Channel != "all" {
+		channelStmt = " AND channel = $2"
 	}
 	if filters.Limit > 0 {
 		limitStmt = fmt.Sprintf("LIMIT %d", filters.Limit)
 	}
 	if filters.OrderByColumn != "" {
 		// OrderByColumn should never be set by a user's input, in order to prevent sql injection
-		// but use a whitelist just in case this rule is every violated somewhere
+		// but use a whitelist just in case this rule is ever violated somewhere
 		if filters.OrderByColumn != "created_at" {
 			return nil, errors.New("invalid value for OrderedByColumn")
 		}
@@ -120,11 +130,11 @@ func fetchVotes(filters *schemas.VoteFilterset) ([]*schemas.Vote, error) {
 	}
 
 	rows, err := db.Query(fmt.Sprintf(`
-		SELECT pubkey, target, direction, created_at
+		SELECT pubkey, target, channel, direction, created_at
 		FROM votes
 		WHERE TRUE
-		%s%s%s
-	`, pubkeyStmt, orderByStmt, limitStmt), filters.PubKey)
+		%s%s%s%s
+	`, pubkeyStmt, channelStmt, orderByStmt, limitStmt), filters.PubKey, filters.Channel)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +142,7 @@ func fetchVotes(filters *schemas.VoteFilterset) ([]*schemas.Vote, error) {
 	var votes []*schemas.Vote
 	for rows.Next() {
 		vote := &schemas.Vote{}
-		err = rows.Scan(&vote.PubKey, &vote.Target, &vote.Direction, &vote.CreatedAt)
+		err = rows.Scan(&vote.PubKey, &vote.Target, &vote.Channel, &vote.Direction, &vote.CreatedAt)
 		votes = append(votes, vote)
 	}
 

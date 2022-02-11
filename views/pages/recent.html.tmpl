@@ -27,9 +27,7 @@
       recent votes by <a href="/u/[[.Page.PubKey]]">[[pubkeyAlias .Page.PubKey]]</a>
     [[end]]
     [[range $_, $vote := .Page.Votes]]
-      <div class="card activity-card">
-        <a href="/u/[[$vote.PubKey]]">[[pubkeyAlias $vote.PubKey]]</a> [[if eq $vote.Direction false]]<span class="red">downvoted[[else]]<span class="green">upvoted[[end]]</span> <a href="/p/[[$vote.Target]]">[[shortPubkey $vote.Target]]</a> [[timeAgo $vote.CreatedAt]].
-      </div>
+      [[template "vote_row" dict "Vote" $vote]]
     [[end]]
   </div>
 [[end]]

@@ -96,6 +96,7 @@ func activityHandler(c echo.Context) error {
 	// Recent votes
 	page.Votes, err = fetchVotes(&schemas.VoteFilterset{
 		PubKey:        page.PubKey,
+		Channel:       page.Channel,
 		OrderByColumn: "created_at",
 	})
 	if err != nil {
