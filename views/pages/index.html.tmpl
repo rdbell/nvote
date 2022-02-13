@@ -6,7 +6,7 @@
   </h5>
   <div>
     [[$length := len .Page.Posts]] [[if eq $length 0]]
-      <p>No recent posts :(</p>
+      <p>No more posts :(</p>
     [[else]]
       [[range $_, $post := .Page.Posts]]
         [[if ne $post.Title ""]]
@@ -14,5 +14,10 @@
         [[end]]
       [[end]]
     [[end]]
+  </div>
+  <div style="font-size: .65em; margin-top: 24px;">
+    [[if ne .Page.Page 0]]<a href="?page=[[add .Page.Page -1]]">← prev</a>[[end]]
+    [[if ne .Page.Page 0]][[if eq $length .Config.PostsPerPage]] &nbsp;&nbsp;|&nbsp;&nbsp; [[end]][[end]]
+    [[if eq $length .Config.PostsPerPage]]<a href="?page=[[add .Page.Page 1]]">next →</a>[[end]]
   </div>
 [[end]]

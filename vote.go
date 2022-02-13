@@ -118,7 +118,7 @@ func fetchVotes(filters *schemas.VoteFilterset) ([]*schemas.Vote, error) {
 		channelStmt = " AND channel = $2"
 	}
 	if filters.Limit > 0 {
-		limitStmt = fmt.Sprintf("LIMIT %d", filters.Limit)
+		limitStmt = fmt.Sprintf(" LIMIT %d", filters.Limit)
 	}
 	if filters.OrderByColumn != "" {
 		// OrderByColumn should never be set by a user's input, in order to prevent sql injection

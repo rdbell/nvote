@@ -158,6 +158,7 @@ type PostFilterset struct {
 	PubKey        string // filter by submitter's pubkey
 	PostType      int    // filter by post/comment/all (see iota above)
 	HideBadUsers  bool   // hide users with low up/down ratios
+	Page          int    // show only posts after specified offset
 	OrderByColumn string // which column to use for sorting
 	Limit         int    // limit # of rows returned
 	// TODO: sort direction?
@@ -299,6 +300,7 @@ type AppConfig struct {
 	PubkeyVerifyURL      string   `json:"pubkey_verify_url"`       // URL for verifying a user's pubkey with the nostr relay
 	VerifyBaseURL        string   `json:"verify_base_url"`         // base URL for a user to submit verification for account
 	CheckVerifiedBaseURL string   `json:"check_verified_base_url"` // base URL for checking if a user is registered with the nostr relay
+	PostsPerPage         int      `json:"posts_per_page"`          // maximum number of posts to display per-page
 	TitleMaxCharacters   int      `json:"title_max_characters"`    // maximum allowed characters in a post title
 	BodyMaxCharacters    int      `json:"body_max_characters"`     // maximum allowed characters in a post/comment body
 	ChannelMaxCharacters int      `json:"channel_max_characters"`  // maximum allowed characters in a channel name

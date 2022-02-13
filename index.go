@@ -77,6 +77,7 @@ func activityHandler(c echo.Context) error {
 		PubKey:        page.PubKey,
 		PostType:      schemas.PostTypePosts,
 		OrderByColumn: "created_at",
+		Limit:         20,
 	})
 	if err != nil {
 		return serveError(c, http.StatusInternalServerError, err)
@@ -88,6 +89,7 @@ func activityHandler(c echo.Context) error {
 		PubKey:        page.PubKey,
 		PostType:      schemas.PostTypeComments,
 		OrderByColumn: "created_at",
+		Limit:         20,
 	})
 	if err != nil {
 		return serveError(c, http.StatusInternalServerError, err)
@@ -98,6 +100,7 @@ func activityHandler(c echo.Context) error {
 		PubKey:        page.PubKey,
 		Channel:       page.Channel,
 		OrderByColumn: "created_at",
+		Limit:         100,
 	})
 	if err != nil {
 		return serveError(c, http.StatusInternalServerError, err)

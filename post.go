@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/rdbell/nvote/schemas"
 
@@ -25,8 +26,15 @@ func viewPostsHandler(c echo.Context) error {
 	var page struct {
 		Posts   []*schemas.Post
 		Channel string
+		Page    int
 	}
 	page.Channel = c.Param("channel")
+	page.Page, _ = strconv.Atoi(c.FormValue("page"))
+
+	// Sanitize page number
+	if page.Page < 0 {
+		page.Page = 0
+	}
 
 	// Fetch posts ordered by ranking
 	var err error
@@ -34,7 +42,9 @@ func viewPostsHandler(c echo.Context) error {
 		Channel:       page.Channel,
 		PostType:      schemas.PostTypePosts,
 		HideBadUsers:  c.Get("user").(*schemas.User).HideBadUsers,
+		Page:          page.Page,
 		OrderByColumn: "ranking",
+		Limit:         appConfig.PostsPerPage,
 	})
 
 	if err != nil {
@@ -55,6 +65,7 @@ func fetchPosts(filters *schemas.PostFilterset) ([]*schemas.Post, error) {
 	pubkeyStmt := " AND $2 = $2"
 	postTypeStmt := ""
 	badUsersStmt := ""
+	pageStmt := ""
 	orderByStmt := ""
 	limitStmt := ""
 	if filters.Channel != "" && filters.Channel != "all" {
@@ -82,14 +93,17 @@ func fetchPosts(filters *schemas.PostFilterset) ([]*schemas.Post, error) {
 		badUsersStmt = " AND user_score > -20 "
 	}
 	if filters.Limit > 0 {
-		limitStmt = fmt.Sprintf("LIMIT %d", filters.Limit)
+		limitStmt = fmt.Sprintf(" LIMIT %d", filters.Limit)
+	}
+	if filters.Page > 0 {
+		pageStmt = fmt.Sprintf(" OFFSET %d", filters.Page*appConfig.PostsPerPage)
 	}
 
 	rows, err := db.Query(fmt.Sprintf(`
 		SELECT id, score, children, pubkey, created_at, title, body, channel, parent
 		FROM posts WHERE TRUE
-		%s%s%s%s%s%s
-	`, channelStmt, pubkeyStmt, postTypeStmt, badUsersStmt, orderByStmt, limitStmt), filters.Channel, filters.PubKey)
+		%s%s%s%s%s%s%s
+	`, channelStmt, pubkeyStmt, postTypeStmt, badUsersStmt, orderByStmt, limitStmt, pageStmt), filters.Channel, filters.PubKey)
 	if err != nil {
 		return nil, err
 	}
