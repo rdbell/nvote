@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/rdbell/go-nostr"
 	"github.com/rdbell/nvote/schemas"
 
 	"github.com/labstack/echo/v4"
@@ -201,7 +202,7 @@ func newPostSubmitHandler(c echo.Context) error {
 	}
 
 	// Publish
-	event, err := publishEvent(c, content)
+	event, err := publishEvent(c, content, nostr.KindTextNote)
 	if err != nil {
 		return serveError(c, http.StatusInternalServerError, err)
 	}
@@ -298,7 +299,7 @@ func getPostTree(id string, depth int) []*schemas.Post {
 	return posts
 }
 
-// insertPost inserts a post event into the DB
+// insertPost inserts a post into the DB
 func insertPost(post *schemas.Post) error {
 	// Fill channel field for replies
 	if post.IsValidComment() {

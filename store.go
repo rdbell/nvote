@@ -56,7 +56,7 @@ func setupPostsTable() {
 func setupUsersTable() {
 	_, err := db.Exec(`
 	create table users (pubkey TEXT NOT NULL PRIMARY KEY, user_score INT);
-	create INDEX users_pubkey ON posts(pubkey);
+	create INDEX users_pubkey ON users(pubkey);
 	delete from users;
 	`)
 	checkErr.Panic(err)
@@ -70,6 +70,16 @@ func setupVotesTable() {
 	create INDEX votes_target ON votes(target);
 	create INDEX votes_channel ON votes(channel);
 	delete from votes;
+	`)
+	checkErr.Panic(err)
+}
+
+// setupAliasesTable initializes the aliases table in SQLite
+func setupAliasesTable() {
+	_, err := db.Exec(`
+	create table aliases (pubkey TEXT, name TEXT);
+	create UNIQUE INDEX aliases_pubkey ON aliases(pubkey);
+	delete from aliases;
 	`)
 	checkErr.Panic(err)
 }
@@ -94,7 +104,7 @@ func fetchEvents() {
 	// Get nostr events
 	sub := pool.Sub(nostr.EventFilters{
 		{
-			Kinds: []int{nostr.KindTextNote},
+			Kinds: []int{nostr.KindTextNote, nostr.KindSetMetadata},
 		},
 	})
 
@@ -102,6 +112,14 @@ func fetchEvents() {
 		for event := range sub.UniqueEvents {
 			// Validate event signature
 			if ok, _ := event.CheckSignature(); !ok {
+				continue
+			}
+
+			// Handle alias update
+			if event.Kind == nostr.KindSetMetadata {
+				if alias, err := schemas.AliasFromEvent(&event); err == nil {
+					upsertAlias(alias)
+				}
 				continue
 			}
 
@@ -121,11 +139,11 @@ func fetchEvents() {
 }
 
 // publishEvent submits a user's event to the nostr network
-func publishEvent(c echo.Context, content []byte) (*nostr.Event, error) {
+func publishEvent(c echo.Context, content []byte, kind int) (*nostr.Event, error) {
 	// Create a new nostr event
 	event := &nostr.Event{
 		CreatedAt: uint32(time.Now().Unix()),
-		Kind:      nostr.KindTextNote,
+		Kind:      kind,
 		Tags:      make(nostr.Tags, 0),
 		Content:   string(content),
 	}

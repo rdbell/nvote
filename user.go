@@ -113,11 +113,76 @@ func settingsSubmitHandler(c echo.Context) error {
 		return serveError(c, http.StatusInternalServerError, errors.New("invalid user object - try logging out"))
 	}
 
+	// Query for existing alias
+	a, _ := aliasForPubKey(user.PubKey)
+
+	// Upsert alias if changed
+	if (a != nil && user.Alias != a.Name) || (a == nil && user.Alias != "") {
+		alias := &schemas.Alias{
+			PubKey: user.PubKey,
+			Name:   user.Alias,
+		}
+
+		// Validate new alias
+		alias.PrepareForPublish()
+		if !alias.IsValid() {
+			return serveError(c, http.StatusInternalServerError, errors.New("invalid alias"))
+		}
+
+		// Serialize data
+		content, err := json.Marshal(alias)
+		if err != nil {
+			return serveError(c, http.StatusInternalServerError, err)
+		}
+
+		// Publish alias update event
+		_, err = publishEvent(c, content, nostr.KindSetMetadata)
+		if err != nil {
+			return serveError(c, http.StatusInternalServerError, err)
+		}
+	}
+
 	// Save cookie
+	user.Alias = ""
 	userJSON, err := json.Marshal(user)
 	if err != nil {
 		return serveError(c, http.StatusInternalServerError, err)
 	}
 	setCookie(c, "user", string(userJSON), time.Time{})
 	return c.Redirect(http.StatusFound, "/")
+}
+
+// aliasForPubkey queries the DB and returns a *schemas.Alias for a given pubkey
+func aliasForPubKey(pubkey string) (*schemas.Alias, error) {
+	alias := &schemas.Alias{}
+
+	var name string
+	err := db.QueryRow(`SELECT name FROM aliases WHERE pubkey = ?`, pubkey).Scan(&name)
+	if err != nil {
+		return nil, err
+	}
+
+	alias.PubKey = pubkey
+	alias.Name = name
+
+	return alias, nil
+
+}
+
+// upsertAlias upserts an alias into the DB
+func upsertAlias(alias *schemas.Alias) error {
+	// Sanitize before upsert
+	alias.Sanitize()
+
+	// Validate
+	if !alias.IsValid() {
+		return errors.New("invalid alias")
+	}
+
+	// Add to DB
+	_, err := db.Exec(`INSERT INTO aliases(pubkey, name) VALUES(?,?) ON CONFLICT (pubkey) DO UPDATE SET name=?`, alias.PubKey, alias.Name, alias.Name)
+	if err != nil {
+		return err
+	}
+	return nil
 }

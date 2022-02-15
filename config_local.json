@@ -14,5 +14,6 @@
     "posts_per_page": 20,
     "title_max_characters": 300,
     "body_max_characters": 10000,
+    "alias_max_characters": 20,
     "channel_max_characters": 20
 }

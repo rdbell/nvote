@@ -1,12 +1,5 @@
 package main
 
-import (
-	"fmt"
-	"math/rand"
-	"strconv"
-	"strings"
-)
-
 // bip39WordList is a list of words to use for pubkey alias generation
 var bip39WordList = []string{
 	"abandon",
@@ -2057,31 +2050,4 @@ var bip39WordList = []string{
 	"zero",
 	"zone",
 	"zoo",
-}
-
-// pubkeyAlias generates an alias for a given pubkey
-func pubkeyAlias(pubkey string) string {
-	// Ensure length
-	if len(pubkey) < 15 {
-		return pubkey
-	}
-
-	// Convert pubkey string to integer from base16 hex
-	// use [0:15] to prevent value out of range
-	i, err := strconv.ParseUint(pubkey[0:15], 16, 64)
-	if err != nil {
-		return (pubkey[0:8])
-	}
-
-	// New random source
-	random := rand.New(rand.NewSource(int64(i)))
-
-	w1 := bip39WordList[random.Intn(len(bip39WordList))]
-	w2 := bip39WordList[random.Intn(len(bip39WordList))]
-	randomNumber := random.Intn(9999)
-
-	randomName := fmt.Sprintf("%v%v%d", strings.Title(w1), strings.Title(w2), randomNumber)
-
-	return randomName
-
 }

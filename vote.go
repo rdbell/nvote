@@ -7,6 +7,7 @@ import (
 	"math"
 	"net/http"
 
+	"github.com/rdbell/go-nostr"
 	"github.com/rdbell/nvote/schemas"
 
 	"github.com/labstack/echo/v4"
@@ -37,7 +38,7 @@ func voteSubmitHandler(c echo.Context) error {
 	}
 
 	// Publish
-	_, err = publishEvent(c, content)
+	_, err = publishEvent(c, content, nostr.KindTextNote)
 	if err != nil {
 		return serveError(c, http.StatusInternalServerError, err)
 	}
@@ -55,7 +56,7 @@ func alreadyVoted(target string, pubkey string) bool {
 	return false
 }
 
-// insertVote inserts a vote event into the DB
+// insertVote inserts a vote into the DB
 func insertVote(vote *schemas.Vote) error {
 	// Ensure the user hasn't already voted on this target
 	if alreadyVoted(vote.Target, vote.PubKey) {

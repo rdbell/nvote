@@ -2,6 +2,6 @@
   [[$channel := $.Vote.Channel]]
   [[if eq $.Vote.Channel ""]][[$channel = "all"]][[end]]
   <div class="card activity-card">
-    <a href="/u/[[$.Vote.PubKey]]">[[pubkeyAlias $.Vote.PubKey]]</a> [[if eq $.Vote.Direction false]]<span class="red">downvoted[[else]]<span class="green">upvoted[[end]]</span> <a href="/p/[[$.Vote.Target]]">[[shortPubkey $.Vote.Target]]</a> in <a href="/c/[[$channel]]">/c/[[$channel]]</a> [[timeAgo $.Vote.CreatedAt]].
+    <a href="/u/[[$.Vote.PubKey]]">[[pubkeyAlias $.Vote.PubKey]] <code>([[shortHash $.Vote.PubKey]])</code></a> [[if eq $.Vote.Direction false]]<span class="red">downvoted[[else]]<span class="green">upvoted[[end]]</span> <code><a href="/p/[[$.Vote.Target]]">[[shortHash $.Vote.Target]]</a></code> in <a href="/c/[[$channel]]">/c/[[$channel]]</a> [[timeAgo $.Vote.CreatedAt]].
   </div>
 [[end]]

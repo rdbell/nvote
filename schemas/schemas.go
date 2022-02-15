@@ -112,9 +112,8 @@ func (post *Post) Sanitize() {
 		post.Channel = ""
 	}
 
-	// Only allow alphanumeric in channel
-	// TODO: consider allowing underscores/dashes?
-	reg, err := regexp.Compile("[^a-zA-Z0-9]+")
+	// Only allow alphanumeric, underscore, dash in channel name
+	reg, err := regexp.Compile("[^a-zA-Z0-9-_]+")
 	if err != nil {
 		post.Channel = ""
 	}
@@ -225,6 +224,7 @@ type VoteFilterset struct {
 type User struct {
 	PrivKey       string `json:"privkey,omitempty" form:"privkey"`               // user private key
 	PubKey        string `json:"pubkey,omitempty" form:"pubkey"`                 // user public key
+	Alias         string `json:"alias,omitempty" form:"alias"`                   // user alias
 	HideDownvoted bool   `json:"hide_downvoted,omitempty" form:"hide_downvoted"` // hide downvoted comments
 	HideBadUsers  bool   `json:"hide_bad_users,omitempty" form:"hide_bad_users"` // hide users with low up/down ratios
 	HideImages    bool   `json:"hide_images,omitempty" form:"hide_images"`       // don't auto-load images in posts
@@ -285,6 +285,65 @@ func (login Login) GeneratePrivateKey() (string, error) {
 	return "", errors.New("invalid auth")
 }
 
+// Alias defines a user alias
+type Alias struct {
+	Name      string `json:"name" form:"name"`                       // alias name
+	PubKey    string `json:"pubkey,omitempty" form:"pubkey"`         // poster's public key
+	CreatedAt uint32 `json:"created_at,omitempty" form:"created_at"` // creation timestamp
+}
+
+// IsValid ensures that an alias looks valid for submission
+func (alias *Alias) IsValid() bool {
+	// Ensure length
+	if alias == nil || len(alias.Name) < 1 || len(alias.Name) > appConfig.AliasMaxCharacters {
+		return false
+	}
+
+	return true
+}
+
+// PrepareForPublish strips superflous parameters to prepare for publishing (omitempty)
+// this is mainly to reduce nostr event content size
+// clients shouldn't assume all post events received from relays have superflous parameters stripped
+func (alias *Alias) PrepareForPublish() {
+	alias.PubKey = ""
+	alias.CreatedAt = 0
+
+	// Sanitize alias data
+	alias.Sanitize()
+}
+
+// Sanitize sanitizes the alias name to prepare for publishing and DB insertion
+func (alias *Alias) Sanitize() {
+	// Only allow alphanumeric, underscore, dash in alias name
+	reg, err := regexp.Compile("[^a-zA-Z0-9-_]+")
+	if err != nil {
+		alias.Name = ""
+	}
+	alias.Name = reg.ReplaceAllString(alias.Name, "")
+}
+
+// AliasFromEvent returns a *Alias for a supplied nostr event
+func AliasFromEvent(event *nostr.Event) (*Alias, error) {
+	// Unmarshal event content
+	alias := &Alias{}
+	err := json.Unmarshal([]byte(event.Content), alias)
+	if err != nil {
+		return nil, errors.New("unable to unmarshal alias")
+	}
+
+	// Pull ts and pubkey from event
+	alias.PubKey = event.PubKey
+	alias.CreatedAt = event.CreatedAt
+
+	// Validate
+	if !alias.IsValid() {
+		return nil, errors.New("invalid alias")
+	}
+
+	return alias, err
+}
+
 // AppConfig defines the schema for global app config
 type AppConfig struct {
 	Environment          string   `json:"environment"`             // environment
@@ -304,4 +363,5 @@ type AppConfig struct {
 	TitleMaxCharacters   int      `json:"title_max_characters"`    // maximum allowed characters in a post title
 	BodyMaxCharacters    int      `json:"body_max_characters"`     // maximum allowed characters in a post/comment body
 	ChannelMaxCharacters int      `json:"channel_max_characters"`  // maximum allowed characters in a channel name
+	AliasMaxCharacters   int      `json:"alias_max_characters"`    // maximum allowed characters in an alias
 }
