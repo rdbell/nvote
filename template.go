@@ -126,6 +126,20 @@ func loadTemplates(box *packr.Box) {
 			}
 			return s
 		},
+		"hasVoted": func(votes []*schemas.Vote, target string) string {
+			for _, vote := range votes {
+				if vote.Target != target {
+					continue
+				}
+				if vote.Direction == true {
+					return "up"
+				}
+				if vote.Direction == false {
+					return "down"
+				}
+			}
+			return ""
+		},
 		"linkDomain": func(s string) string {
 			// Parse URL
 			u, err := stringToURL(s)

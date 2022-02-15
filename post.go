@@ -24,10 +24,12 @@ func postRoutes(e *echo.Echo) {
 // viewPostsHandler serves all posts, or the posts for a channel
 func viewPostsHandler(c echo.Context) error {
 	var page struct {
-		Posts   []*schemas.Post
-		Channel string
-		Page    int
+		Posts     []*schemas.Post
+		Channel   string
+		Page      int
+		UserVotes []*schemas.Vote
 	}
+
 	page.Channel = c.Param("channel")
 	page.Page, _ = strconv.Atoi(c.FormValue("page"))
 
@@ -49,6 +51,18 @@ func viewPostsHandler(c echo.Context) error {
 
 	if err != nil {
 		return serveError(c, http.StatusInternalServerError, err)
+	}
+
+	// Fetch all votes for this user, to disable votes for posts that have already been voted on
+	if c.Get("user").(*schemas.User).PubKey != "" {
+		var err error
+		page.UserVotes, err = fetchVotes(&schemas.VoteFilterset{
+			PubKey: c.Get("user").(*schemas.User).PubKey,
+			// TODO: add limit?
+		})
+		if err != nil {
+			return serveError(c, http.StatusInternalServerError, err)
+		}
 	}
 
 	pd := new(pageData).Init(c)
@@ -124,12 +138,25 @@ func fetchPosts(filters *schemas.PostFilterset) ([]*schemas.Post, error) {
 // newPostHandler serves the New Post page
 func newPostHandler(c echo.Context) error {
 	var page struct {
-		Post   *schemas.Post
-		Parent *schemas.Post
+		Post      *schemas.Post
+		Parent    *schemas.Post
+		UserVotes []*schemas.Vote
 	}
 	page.Post = &schemas.Post{}
 	page.Post.Channel = c.Param("channel")
 	page.Parent = &schemas.Post{}
+
+	// Fetch all votes for this user, to disable votes for posts that have already been voted on
+	if c.Get("user").(*schemas.User).PubKey != "" {
+		var err error
+		page.UserVotes, err = fetchVotes(&schemas.VoteFilterset{
+			PubKey: c.Get("user").(*schemas.User).PubKey,
+			// TODO: add limit?
+		})
+		if err != nil {
+			return serveError(c, http.StatusInternalServerError, err)
+		}
+	}
 
 	// Handle POST request for post preview
 	if c.Bind(page.Post) != nil || (!page.Post.IsValidPost() && !page.Post.IsValidComment()) {
@@ -191,8 +218,9 @@ func viewPostHandler(c echo.Context) error {
 	}
 
 	var page struct {
-		ID    string
-		Posts []*schemas.Post
+		ID        string
+		Posts     []*schemas.Post
+		UserVotes []*schemas.Vote
 	}
 	page.ID = id
 
@@ -204,6 +232,18 @@ func viewPostHandler(c echo.Context) error {
 
 	if len(posts) == 0 {
 		return serveError(c, http.StatusNotFound, errors.New("not found"))
+	}
+
+	// Fetch all votes for this user, to disable votes for posts that have already been voted on
+	if c.Get("user").(*schemas.User).PubKey != "" {
+		var err error
+		page.UserVotes, err = fetchVotes(&schemas.VoteFilterset{
+			PubKey: c.Get("user").(*schemas.User).PubKey,
+			// TODO: add limit?
+		})
+		if err != nil {
+			return serveError(c, http.StatusInternalServerError, err)
+		}
 	}
 
 	pd := new(pageData).Init(c)

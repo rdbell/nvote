@@ -10,7 +10,7 @@
     [[else]]
       [[range $_, $post := .Page.Posts]]
         [[if ne $post.Title ""]]
-          [[template "post_row" dict "Post" $post "CsrfToken" $.CsrfToken "Type" "post" "Config" $.Config]]
+          [[template "post_row" dict "Post" $post "CsrfToken" $.CsrfToken "Type" "post" "Config" $.Config "UserVotes" $.Page.UserVotes]]
         [[end]]
       [[end]]
     [[end]]

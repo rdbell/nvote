@@ -57,11 +57,12 @@ func exploreHandler(c echo.Context) error {
 // activityHandler serves a list of recent activity
 func activityHandler(c echo.Context) error {
 	var page struct {
-		PubKey   string
-		Posts    []*schemas.Post
-		Comments []*schemas.Post
-		Votes    []*schemas.Vote
-		Channel  string
+		PubKey    string
+		Posts     []*schemas.Post
+		Comments  []*schemas.Post
+		Votes     []*schemas.Vote
+		Channel   string
+		UserVotes []*schemas.Vote
 	}
 
 	page.PubKey = c.Param("pubkey")
@@ -104,6 +105,18 @@ func activityHandler(c echo.Context) error {
 	})
 	if err != nil {
 		return serveError(c, http.StatusInternalServerError, err)
+	}
+
+	// Fetch all votes for this user, to disable votes for posts that have already been voted on
+	if c.Get("user").(*schemas.User).PubKey != "" {
+		var err error
+		page.UserVotes, err = fetchVotes(&schemas.VoteFilterset{
+			PubKey: c.Get("user").(*schemas.User).PubKey,
+			// TODO: add limit?
+		})
+		if err != nil {
+			return serveError(c, http.StatusInternalServerError, err)
+		}
 	}
 
 	pd := new(pageData).Init(c)

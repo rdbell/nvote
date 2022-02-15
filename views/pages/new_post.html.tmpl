@@ -2,10 +2,10 @@
   [[$postType := "post"]]
   [[if ne .Page.Parent.ID ""]]
     [[$postType = "comment"]]
-    [[template "parent_post" dict "Post" .Page.Parent "User" .User "Config" .Config "CsrfToken" .CsrfToken "Preview" false]]
+    [[template "parent_post" dict "Post" .Page.Parent "User" .User "Config" .Config "CsrfToken" .CsrfToken "Preview" false "UserVotes" .Page.UserVotes]]
   [[end]]
   [[if ne .Page.Post.Body ""]]
-    [[template "parent_post" dict "Post" .Page.Post "User" .User "Config" .Config "CsrfToken" .CsrfToken "Preview" true]]
+    [[template "parent_post" dict "Post" .Page.Post "User" .User "Config" .Config "CsrfToken" .CsrfToken "Preview" true "UserVotes" .Page.UserVotes]]
   [[end]]
   <div class="card flex justify-center" style="padding: 60px 20px; font-weight: 400; font-size: .8em;">
     <div class="w-100" style="max-width: 800px;">

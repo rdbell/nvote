@@ -1,20 +1,6 @@
 [[define "parent_post"]]
   <div class="flex card" style="padding: 20px 0px;">
-    <div class="votes flex">
-      <form class="vote-form" action="/vote/[[$.Post.ID]]" method="POST">
-        <input type="hidden" name="direction" value="true">
-        <input type="hidden" name="target" value="[[$.Post.ID]]">
-        <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
-        <input class="text-button" type="submit" value="&#9650;">
-      </form>
-      <div class="post-count">[[score $.Post.Score]]</div>
-      <form class="vote-form" action="/vote/[[$.Post.ID]]" method="POST">
-        <input type="hidden" name="direction" value="false">
-        <input type="hidden" name="target" value="[[$.Post.ID]]">
-        <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
-        <input class="text-button" type="submit" value="&#9660;">
-      </form>
-    </div>
+    [[template "vote_form" dict "Post" $.Post "UserVotes" $.UserVotes "CsrfToken" $.CsrfToken "ShowScore" true]]
     <div>
       [[$channel := $.Post.Channel]]
       [[if eq $channel ""]]
@@ -36,6 +22,7 @@
           [[$pubkey = $.User.PubKey]]
           [[$time = "just now"]]
         [[end]]
+        <span>[[$.Post.Score]] points </span>
         <span>posted by </span>
         <span><a href="/u/[[$pubkey]]">[[pubkeyAlias $pubkey]]</a> </span>
         <span>to <a href="/c/[[$channel]]">[[$channel]]</a> </span>

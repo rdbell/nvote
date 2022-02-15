@@ -18,20 +18,7 @@
           </label>
           <div>
             <div class="comment-body flex">
-              <div class="votes flex">
-                <form class="vote-form" action="/vote/[[$post.ID]]" method="POST">
-                  <input type="hidden" name="direction" value="true">
-                  <input type="hidden" name="target" value="[[$post.ID]]">
-                  <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
-                  <input class="text-button" type="submit" value="&#9650;">
-                </form>
-                <form class="vote-form" action="/vote/[[$post.ID]]" method="POST">
-                  <input type="hidden" name="direction" value="false">
-                  <input type="hidden" name="target" value="[[$post.ID]]">
-                  <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
-                  <input class="text-button" type="submit" value="&#9660;">
-                </form>
-              </div>
+              [[template "vote_form" dict "Post" $post "UserVotes" $.UserVotes "CsrfToken" $.CsrfToken "ShowScore" false]]
               <div class="flex" style="flex-direction: column;">
                 <div>
                   [[if eq $.User.HideImages true]][[renderMarkdownNoImages $post.Body]][[else]][[renderMarkdown $post.Body]][[end]]
@@ -42,7 +29,7 @@
               </div>
             </div>
             <div>
-              [[template "replies" dict "Posts" $posts "Parent" $post.ID "CsrfToken" $.CsrfToken "Depth" $nextDepth "User" $.User]]
+              [[template "replies" dict "Posts" $posts "Parent" $post.ID "CsrfToken" $.CsrfToken "Depth" $nextDepth "User" $.User "UserVotes" $.UserVotes]]
             </div>
           </div>
         </div>

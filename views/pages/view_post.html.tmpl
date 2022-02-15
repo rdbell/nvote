@@ -1,7 +1,7 @@
 [[define "content"]]
   [[$post := index .Page.Posts 0]]
   [[$postCount := len .Page.Posts]]
-  [[template "parent_post" dict "Post" $post "User" .User "Config" .Config "CsrfToken" .CsrfToken "Preview" false]]
+  [[template "parent_post" dict "Post" $post "User" .User "Config" .Config "CsrfToken" .CsrfToken "Preview" false "UserVotes" .Page.UserVotes]]
   <p id="comments">
     [[if eq $post.Title ""]]
       Replies
@@ -12,7 +12,7 @@
     <p>No replies.</p>
   [[else]]
     <div class="replies">
-      [[template "replies" dict "Posts" .Page.Posts "Parent" .Page.ID "CsrfToken" .CsrfToken "Depth" 0 "User" .User]]
+      [[template "replies" dict "Posts" .Page.Posts "Parent" .Page.ID "CsrfToken" .CsrfToken "Depth" 0 "User" .User "UserVotes" .Page.UserVotes]]
     </div>
   [[end]]
 [[end]]

@@ -1,21 +1,7 @@
 [[define "post_row"]]
   <div class="card post-row">
     <div class="flex">
-      <div class="votes flex justify-center">
-        <form class="vote-form" action="/vote/[[$.Post.ID]]" method="POST">
-          <input type="hidden" name="direction" value="true">
-          <input type="hidden" name="target" value="[[$.Post.ID]]">
-          <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
-          <input class="text-button" type="submit" value="&#9650;">
-        </form>
-        <div class="post-count">[[score $.Post.Score]]</div>
-        <form class="vote-form" action="/vote/[[$.Post.ID]]" method="POST">
-          <input type="hidden" name="direction" value="false">
-          <input type="hidden" name="target" value="[[$.Post.ID]]">
-          <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
-          <input class="text-button" type="submit" value="&#9660;">
-        </form>
-      </div>
+      [[template "vote_form" dict "Post" $.Post "UserVotes" $.UserVotes "CsrfToken" $.CsrfToken "ShowScore" true]]
       <div>
         [[$channel := $.Post.Channel]]
         [[if eq $channel ""]]

@@ -50,3 +50,11 @@ textarea {
 .modal-content {
     background: #1C2230;
 }
+
+.upvoted {
+    color: #3cb978 !important;
+}
+
+.downvoted {
+    color: #dc3545 !important;
+}

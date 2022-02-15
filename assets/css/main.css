@@ -347,3 +347,20 @@ tr:nth-child(even) {
 .post-content-type {
     font-size: .5em;
 }
+
+.disabled-vote {
+    pointer-events: none;
+    cursor: default;
+}
+
+.upvoted {
+    color: #3cb978 !important;
+}
+
+.downvoted {
+    color: #dc3545 !important;
+}
+
+.transparent {
+    opacity: 0.3;
+}

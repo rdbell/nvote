@@ -1,0 +1,19 @@
+[[define "vote_form"]]
+  <div class="votes flex justify-center">
+    <form class="vote-form[[if ne (hasVoted $.UserVotes $.Post.ID) ""]] disabled-vote[[end]]" action="/vote/[[$.Post.ID]]" method="POST">
+      <input type="hidden" name="direction" value="true">
+      <input type="hidden" name="target" value="[[$.Post.ID]]">
+      <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
+      <input class="text-button[[if eq (hasVoted $.UserVotes $.Post.ID) "up"]] upvoted[[end]][[if eq (hasVoted $.UserVotes $.Post.ID) "down"]] transparent[[end]]" type="submit" value="&#9650;">
+    </form>
+    [[if eq $.ShowScore true]]
+      <div class="post-count[[if eq (hasVoted $.UserVotes $.Post.ID) "up"]] upvoted[[end]][[if eq (hasVoted $.UserVotes $.Post.ID) "down"]] downvoted[[end]]">[[score $.Post.Score]]</div>
+    [[end]]
+    <form class="vote-form[[if ne (hasVoted $.UserVotes $.Post.ID) ""]] disabled-vote[[end]]" action="/vote/[[$.Post.ID]]" method="POST">
+      <input type="hidden" name="direction" value="false">
+      <input type="hidden" name="target" value="[[$.Post.ID]]">
+      <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
+      <input class="text-button[[if eq (hasVoted $.UserVotes $.Post.ID) "down"]] downvoted[[end]][[if eq (hasVoted $.UserVotes $.Post.ID) "up"]] transparent[[end]]" type="submit" value="&#9660;">
+    </form>
+  </div>
+[[end]]
