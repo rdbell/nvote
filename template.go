@@ -128,6 +128,10 @@ func loadTemplates(box *packr.Box) {
 			}
 			return s
 		},
+		"isVerified": func(pubkey string) bool {
+			verified, _ := checkVerification(pubkey)
+			return verified
+		},
 		"hasVoted": func(votes []*schemas.Vote, target string) string {
 			for _, vote := range votes {
 				if vote.Target != target {

@@ -1,5 +1,5 @@
 [[define "vote_form"]]
-  <div class="votes flex justify-center">
+  <div class="votes flex">
     <form class="vote-form[[if ne (hasVoted $.UserVotes $.Post.ID) ""]] disabled-vote[[end]]" action="/vote/[[$.Post.ID]]" method="POST">
       <input type="hidden" name="direction" value="true">
       <input type="hidden" name="target" value="[[$.Post.ID]]">

@@ -17,6 +17,7 @@ import (
 func userRoutes(e *echo.Echo) {
 	e.POST("/logout", isLoggedIn(logoutHandler))
 	e.GET("/login", isLoggedOut(loginHandler))
+	e.GET("/alt_login", isLoggedOut(altLoginHandler))
 	e.POST("/login", isLoggedOut(loginSubmitHandler))
 	e.GET("/settings", isLoggedIn(settingsHandler))
 	e.POST("/settings", isLoggedIn(settingsSubmitHandler))
@@ -54,6 +55,13 @@ func loginHandler(c echo.Context) error {
 	pd.Page = page
 	pd.Title = "Login"
 	return c.Render(http.StatusOK, "base:login", pd)
+}
+
+// altLoginHandler serves the alternative login page
+func altLoginHandler(c echo.Context) error {
+	pd := new(pageData).Init(c)
+	pd.Title = "Login"
+	return c.Render(http.StatusOK, "base:alt_login", pd)
 }
 
 // settingsHandler serves the settings page

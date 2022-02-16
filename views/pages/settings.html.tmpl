@@ -10,8 +10,12 @@
               </td>
             </tr>
             <tr>
-              <td>custom alias :</td>
-              <td><input type="text" name="alias" maxlength="[[.Config.AliasMaxCharacters]]" value="[[pubkeyAlias .User.PubKey]]"></td>
+              <td>custom alias:</td>
+              [[if eq (isVerified .User.PubKey) true]]
+                <td><input type="text" name="alias" maxlength="[[.Config.AliasMaxCharacters]]" value="[[pubkeyAlias .User.PubKey]]"></td>
+              [[else]]
+                <td><a href="/verify">account verification required</a></td>
+              [[end]]
             </tr>
             <tr>
               <td>hide downvoted (&lt; -5) comments:</td>

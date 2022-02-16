@@ -4,36 +4,37 @@
       [[if eq .Config.Environment "prod"]]
         We recommend running the <a href="[[.Config.RepoLink]]">local client</a> to post &amp; vote. You can select a login method below if you trust this gateway.
         <div>The seed phrase or private key that you use should be specific to [[.Config.SiteName]]. Do not paste values from any cryptocurrency wallets.</div>
+      [[else]]
+        Login Method
       [[end]]
     </div></center>
     <div class="flex" style="flex-wrap: wrap; justify-content: center; font-size: .8em;">
+      <div style="padding: 20px; border: 1px solid #d8dae1; max-width: 100%">
+        <form action="/login" method="POST">
+          <div class="flex" style="flex-direction: column; align-items: center; width: 300px; max-width: 100%;">
+            <p>
+              <label for="password">Password Login</label>
+            </p>
+            <input class="w-80" type="text" name="password" placeholder="MySecretPass123!@#$">
+            <input type="hidden" name="csrf" value="[[.CsrfToken]]">
+            <input type="submit" value="login">
+          </div>
+        </form>
+      </div>
       <div style="padding: 20px; border: 1px solid #d8dae1; max-width: 100%;">
         <form action="/login" method="POST">
           <div class="flex" style="flex-direction: column; align-items: center; width: 300px; max-width: 100%;">
             <p>
-              <label for="seed">Seed Phrase Login</label>
+              <label for="privkey">Private Key Login</label>
             </p>
-            <input class="w-80" type="text" name="seed" placeholder="piano early guess emerge ...">
+            <input class="w-80" type="text" name="privkey" placeholder="96a1e28738f24...">
             <input type="hidden" name="csrf" value="[[.CsrfToken]]">
             <input type="submit" value="login">
-            <a href="#suggest-seed">need a seed phrase?</a>
           </div>
         </form>
       </div>
     </div>
-    <center><a style="color: #3cb978; font-size: .7em; padding-top: 22px;" href="/alt_login">alternate login options &#8594;</a></center>
-  </div>
-  <div id="suggest-seed" class="modal" style="display: none;">
-    <div class="modal-content">
-      <center>
-        <div>Suggested BIP39 Mnemonic</div>
-        <br>
-        <div style="background-color: black;"><code style="color: #d8dae1;">[[.Page.SuggestedSeed]]</code></div>
-        <br>
-        <div class="red">Keep this seed phrase in a safe location. Your account cannot be recovered if you lose the seed phrase.</div>
-      </center>
-      <a href="#" class="modal-close">&times;</a>
-    </div>
+    <center><a style="color: #3cb978; font-size: .7em; padding-top: 22px;" href="/login">seed phrase login &#8594;</a></center>
   </div>
 [[end]]
 

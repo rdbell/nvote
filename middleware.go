@@ -124,6 +124,27 @@ func isLoggedIn(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+// checkVerification returns true if a pubkey is verified with the relay
+func checkVerification(pubkey string) (bool, error) {
+	response, err := http.Get(appConfig.CheckVerifiedBaseURL + "/" + pubkey)
+	if err != nil {
+		return false, err
+	}
+
+	defer response.Body.Close()
+	contents, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return false, err
+	}
+
+	if strings.Contains(string(contents), "pubkey registered at timestamp") {
+		// User is registered, continue
+		return true, nil
+	}
+
+	return false, nil
+}
+
 // isVerified middleware ensures a user is registered with the relay
 func isVerified(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -133,19 +154,12 @@ func isVerified(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		user := c.Get("user").(*schemas.User)
-		response, err := http.Get(appConfig.CheckVerifiedBaseURL + "/" + user.PubKey)
+		verified, err := checkVerification(user.PubKey)
 		if err != nil {
 			return serveError(c, http.StatusInternalServerError, err)
 		}
 
-		defer response.Body.Close()
-		contents, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			return serveError(c, http.StatusInternalServerError, err)
-		}
-
-		if strings.Contains(string(contents), "pubkey registered at timestamp") {
-			// User is registered, continue
+		if verified {
 			return next(c)
 		}
 
