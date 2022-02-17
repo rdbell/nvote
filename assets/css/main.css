@@ -166,16 +166,17 @@ input[type=submit] {
 
 .post-body,
 .comment-body {
-    font-size: .9em;
+    font-size: .80em;
+    margin-right: 40px;
 }
 
 .post-body img {
-    max-height: 300px;
+    max-height: 600px;
     max-width: 100%;
 }
 
 .comment-body img {
-    max-height: 120px;
+    max-height: 300px;
     max-width: 100%;
 }
 
@@ -189,11 +190,6 @@ input[type=submit] {
     margin-block-start: 0px;
     margin-block-end: 0px;
     padding: 5px 0px;
-}
-
-.post-body p,
-.comment-body p {
-    font-size: .85em;
 }
 
 .comment-body p {
@@ -219,6 +215,7 @@ input[type=submit] {
     font-size: .9em;
     padding: 0;
     margin-block: 0;
+    margin-right: 40px;
 }
 
 .post-view-tagline {
