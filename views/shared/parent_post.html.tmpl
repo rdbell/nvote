@@ -40,8 +40,10 @@
       <div class="post-actions">
         <span><a href="#comments">[[$.Post.Children]] comments</a> | </span>
         <span><a href="#share-box-[[$.Post.ID]]">share</a> | </span>
-        <span><a href="/p/[[$.Post.ID]]/reply">reply</a></span>
         [[template "share_box" dict "Post" $.Post "Config" .Config]]
+        <span><a href="/p/[[$.Post.ID]]/reply">reply</a></span>
+        [[if eq $.Post.PubKey .User.PubKey]]<span> | <a href="#delete-box-[[$.Post.ID]]">delete</a></span>[[end]]
+        [[template "delete_box" dict "Post" $.Post "CsrfToken" $.CsrfToken]]
       </div>
       [[if eq $.Preview true]]
         <div class="red" style="font-size: .7em; margin-top: 8px;">(post preview)</div>

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"strings"
 
 	"github.com/rdbell/go-nostr"
 	"github.com/rdbell/nvote/schemas"
@@ -38,9 +39,15 @@ func voteSubmitHandler(c echo.Context) error {
 	}
 
 	// Publish
-	_, err = publishEvent(c, content, nostr.KindTextNote)
+	_, err = publishEvent(c, content, nostr.KindTextNote, nil)
 	if err != nil {
 		return serveError(c, http.StatusInternalServerError, err)
+	}
+
+	// Attempt redirect back to page that the user came from
+	referer := c.Request().Header["Referer"]
+	if len(referer) != 0 && strings.Contains(referer[0], appConfig.SiteURL) {
+		return c.Redirect(http.StatusFound, referer[0])
 	}
 
 	return c.Redirect(http.StatusFound, fmt.Sprintf("/p/%s", vote.Target))

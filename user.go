@@ -144,7 +144,7 @@ func settingsSubmitHandler(c echo.Context) error {
 		}
 
 		// Publish alias update event
-		_, err = publishEvent(c, content, nostr.KindSetMetadata)
+		_, err = publishEvent(c, content, nostr.KindSetMetadata, nil)
 		if err != nil {
 			return serveError(c, http.StatusInternalServerError, err)
 		}

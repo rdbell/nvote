@@ -5,13 +5,13 @@
     <h5>
       [[if eq .Page.PubKey ""]]
         recent posts in <a href="/c/[[$channel]]">/c/[[$channel]]</a>
-        <div style="font-size: .55em;"><a href="/c/[[$channel]]">view hot &#8594;</a></div>
+        <div style="font-size: .65em; .65em; margin-bottom: 24px;"><a href="/c/[[$channel]]">view hot &#8594;</a></div>
       [[else]]
         recent posts by <a href="/u/[[.Page.PubKey]]">[[pubkeyAlias .Page.PubKey]]</a>
       [[end]]
     </h5>
     [[range $_, $post := .Page.Posts]]
-      [[template "post_row" dict "Post" $post "CsrfToken" $.CsrfToken "Type" "post" "Config" $.Config "UserVotes" $.Page.UserVotes]]
+      [[template "post_row" dict "Post" $post "CsrfToken" $.CsrfToken "Type" "post" "Config" $.Config "User" $.User "UserVotes" $.Page.UserVotes]]
     [[end]]
     [[if eq .Page.PubKey ""]]
       <h5>recent comments in <a href="/c/[[$channel]]">/c/[[$channel]]</a></h5>
@@ -19,7 +19,7 @@
       recent comments by <a href="/u/[[.Page.PubKey]]">[[pubkeyAlias .Page.PubKey]]</a>
     [[end]]
     [[range $_, $comment := .Page.Comments]]
-      [[template "post_row" dict "Post" $comment "CsrfToken" $.CsrfToken "Type" "comment" "Config" $.Config "UserVotes" $.Page.UserVotes]]
+      [[template "post_row" dict "Post" $comment "CsrfToken" $.CsrfToken "Type" "comment" "Config" $.Config "User" $.User "UserVotes" $.Page.UserVotes]]
     [[end]]
     [[if eq .Page.PubKey ""]]
       <h5>recent votes in <a href="/c/[[$channel]]">/c/[[$channel]]</a></h5>

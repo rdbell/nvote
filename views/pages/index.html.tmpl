@@ -1,7 +1,7 @@
 [[define "content"]]
   <h5>
     [[$channel := .Page.Channel]][[if eq .Page.Channel ""]][[$channel = "all"]][[end]]
-    top posts in <a href="/c/[[$channel]]">/c/[[$channel]]</a>
+    hot posts in <a href="/c/[[$channel]]">/c/[[$channel]]</a>
     <div style="font-size: .65em; margin-bottom: 24px;"><a href="/c/[[$channel]]/recent">view recent &#8594;</a></div>
   </h5>
   <div>
@@ -10,7 +10,7 @@
     [[else]]
       [[range $_, $post := .Page.Posts]]
         [[if ne $post.Title ""]]
-          [[template "post_row" dict "Post" $post "CsrfToken" $.CsrfToken "Type" "post" "Config" $.Config "UserVotes" $.Page.UserVotes]]
+          [[template "post_row" dict "Post" $post "CsrfToken" $.CsrfToken "Type" "post" "Config" $.Config "User" $.User "UserVotes" $.Page.UserVotes]]
         [[end]]
       [[end]]
     [[end]]

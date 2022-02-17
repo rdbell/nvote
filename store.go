@@ -104,15 +104,21 @@ func fetchEvents() {
 	// Get nostr events
 	sub := pool.Sub(nostr.EventFilters{
 		{
-			Kinds: []int{nostr.KindTextNote, nostr.KindSetMetadata},
+			Kinds: []int{nostr.KindTextNote, nostr.KindSetMetadata, nostr.KindDeletion},
 		},
 	})
 
 	go func() {
 		for event := range sub.UniqueEvents {
+
 			// Validate event signature
 			if ok, _ := event.CheckSignature(); !ok {
 				continue
+			}
+
+			// Handle post deletion
+			if event.Kind == nostr.KindDeletion {
+				deletePost(&event)
 			}
 
 			// Handle alias update
@@ -139,12 +145,15 @@ func fetchEvents() {
 }
 
 // publishEvent submits a user's event to the nostr network
-func publishEvent(c echo.Context, content []byte, kind int) (*nostr.Event, error) {
+func publishEvent(c echo.Context, content []byte, kind int, tags nostr.Tags) (*nostr.Event, error) {
+	if tags == nil {
+		tags = make(nostr.Tags, 0)
+	}
 	// Create a new nostr event
 	event := &nostr.Event{
 		CreatedAt: uint32(time.Now().Unix()),
+		Tags:      tags,
 		Kind:      kind,
-		Tags:      make(nostr.Tags, 0),
 		Content:   string(content),
 	}
 

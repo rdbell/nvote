@@ -58,11 +58,13 @@ func main() {
 	e := echo.New()
 
 	// Middleware
-	e.Use(middleware.Logger())
+	if appConfig.Environment == "dev" {
+		e.Use(middleware.Logger())
+	}
 	e.Use(middleware.Recover())
 
 	// Don't perform any re-routing in development environment
-	if appConfig.Environment != "" && appConfig.Environment != "development" {
+	if appConfig.Environment != "" && appConfig.Environment != "dev" {
 		e.Pre(httpsRedir)
 	}
 

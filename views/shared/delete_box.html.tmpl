@@ -1,0 +1,13 @@
+[[define "delete_box"]]
+  <div id="delete-box-[[$.Post.ID]]" class="modal" style="display: none;">
+    <div class="modal-content">
+      <center>
+        <form method="POST" action="/p/[[$.Post.ID]]/delete">
+         <input type="hidden" name="csrf" value="[[$.CsrfToken]]">
+         <input type="submit" value="delete" style="width: 200px;">
+       </form>
+       <a href="#"><button style="width: 200px; background: #dc3545;">nevermind</button></a>
+     </center>
+    </div>
+  </div>
+[[end]]

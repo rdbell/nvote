@@ -150,7 +150,6 @@ func loadTemplates(box *packr.Box) {
 			// Parse URL
 			u, err := stringToURL(s)
 			if err != nil {
-				fmt.Println(err)
 				return ""
 			}
 

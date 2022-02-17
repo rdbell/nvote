@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/rdbell/go-nostr"
 	"github.com/rdbell/nvote/schemas"
@@ -20,6 +21,44 @@ func postRoutes(e *echo.Echo) {
 	e.POST("/new/preview", isLoggedIn(isVerified(newPostHandler)))
 	e.GET("/p/:id", viewPostHandler)
 	e.GET("/p/:parent/reply", isLoggedIn(isVerified(newPostHandler)))
+	e.POST("/p/:id/delete", isLoggedIn(isVerified(deletePostHandler)))
+}
+
+// deletePostHandler deletes a post
+func deletePostHandler(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return serveError(c, http.StatusInternalServerError, errors.New("invalid post"))
+	}
+
+	post, err := getPost(id)
+	if err != nil {
+		return serveError(c, http.StatusInternalServerError, err)
+	}
+	if post.PubKey != c.Get("user").(*schemas.User).PubKey {
+		return serveError(c, http.StatusInternalServerError, errors.New("cannot delete another user's post"))
+	}
+
+	// Publish deletion event
+	tags := nostr.Tags{nostr.Tag{"e", post.ID}}
+	publishEvent(c, []byte{}, nostr.KindDeletion, tags)
+
+	// Attempt to redirect the user back to where they came from, but only if that content still exists
+	referer := c.Request().Header["Referer"]
+	if len(referer) != 0 && strings.Contains(referer[0], appConfig.SiteURL) {
+		u, err := stringToURL(referer[0])
+		if err != nil || u.Path == "/p/"+id {
+			target, err := getPost(id)
+			if err != nil {
+				return c.Redirect(http.StatusFound, "/")
+			}
+			return c.Redirect(http.StatusFound, "/p/"+target.ID)
+		}
+		return c.Redirect(http.StatusFound, u.Path)
+	}
+
+	// If all else fails, redirect to index
+	return c.Redirect(http.StatusFound, "/")
 }
 
 // viewPostsHandler serves all posts, or the posts for a channel
@@ -202,7 +241,7 @@ func newPostSubmitHandler(c echo.Context) error {
 	}
 
 	// Publish
-	event, err := publishEvent(c, content, nostr.KindTextNote)
+	event, err := publishEvent(c, content, nostr.KindTextNote, nil)
 	if err != nil {
 		return serveError(c, http.StatusInternalServerError, err)
 	}
@@ -329,6 +368,33 @@ func insertPost(post *schemas.Post) error {
 	// Update parent's children count
 	if post.Parent != "" {
 		updateChildrenCounts(post.Parent)
+	}
+
+	return nil
+}
+
+// deletePost delets a post from the local cache
+func deletePost(event *nostr.Event) error {
+	if len(event.Tags) < 1 || len(event.Tags[0]) < 1 {
+		return errors.New("invalild request")
+	}
+
+	for _, target := range event.Tags {
+		// Validate target
+		if len(target) < 2 {
+			break
+		}
+		if target[0] != "e" {
+			break
+		}
+		if target[1] == "" {
+			break
+		}
+
+		// delete targets
+		db.Exec(`DELETE FROM posts WHERE pubkey = ? AND id = ?`, event.PubKey, event.Tags[0][1].(string))
+
+		// TODO: update parent reply count recursively?
 	}
 
 	return nil

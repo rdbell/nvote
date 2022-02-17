@@ -24,7 +24,10 @@
                   [[if eq $.User.HideImages true]][[renderMarkdownNoImages $post.Body]][[else]][[renderMarkdown $post.Body]][[end]]
                 </div>
                 <div class="post-actions">
-                  <a href="/p/[[$post.ID]]/reply">reply</a> | <a href="/p/[[$post.ID]]">permalink</a>
+                  <span><a href="/p/[[$post.ID]]/reply">reply</a> | </span>
+                  <span><a href="/p/[[$post.ID]]">permalink</a></span>
+                  [[if eq $post.PubKey $.User.PubKey]]<span> | <a href="#delete-box-[[$post.ID]]">delete</a></span>[[end]]
+                  [[template "delete_box" dict "Post" $post "CsrfToken" $.CsrfToken]]
                 </div>
               </div>
             </div>
