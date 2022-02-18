@@ -1,37 +1,36 @@
 [[define "content"]]
   <div class="card flex justify-center" style="padding: 60px 20px; font-weight: 400; font-size: .8em;">
-    <div class="w-100" style="max-width: 640px;">
+    <div class="settings">
       <form action="/settings" method="POST">
         <table>
           <tbody>
             <tr>
               <td colspan="2">
-                <center><div>content filters</div></center>
+                <center>
+                  <div style="margin-bottom: 12px;">custom alias</div>
+                  [[if eq (isVerified .User.PubKey) true]]
+                    <input type="text" name="alias" maxlength="[[.Config.AliasMaxCharacters]]" placeholder="custom alias" value="[[pubkeyAlias .User.PubKey]]" style="text-align: center;" required>
+                  [[else]]
+                    <a class="red" href="/verify">verify account for alias →</a>
+                  [[end]]
+                </center>
               </td>
             </tr>
             <tr>
-              <td>custom alias:</td>
-              [[if eq (isVerified .User.PubKey) true]]
-                <td><input type="text" name="alias" maxlength="[[.Config.AliasMaxCharacters]]" value="[[pubkeyAlias .User.PubKey]]"></td>
-              [[else]]
-                <td><a href="/verify">account verification required</a></td>
-              [[end]]
+              <td><input class="apple-switch" type="checkbox" name="hide_downvoted" [[if eq .User.HideDownvoted true]]checked[[end]] value="true"></td>
+              <td>hide downvoted comments</td>
             </tr>
             <tr>
-              <td>hide downvoted (&lt; -5) comments:</td>
-              <td><input type="checkbox" name="hide_downvoted" [[if eq .User.HideDownvoted true]]checked[[end]] value="true"></td>
+              <td><input class="apple-switch" type="checkbox" name="hide_bad_users" [[if eq .User.HideBadUsers true]]checked[[end]] value="true"></td>
+              <td>hide posts from users with low scores</td>
             </tr>
             <tr>
-              <td>hide posts from users with low scores:</td>
-              <td><input type="checkbox" name="hide_bad_users" [[if eq .User.HideBadUsers true]]checked[[end]] value="true"></td>
+              <td><input class="apple-switch" type="checkbox" name="hide_images" [[if eq .User.HideImages true]]checked[[end]] value="true"></td>
+              <td>disable embedded images</td>
             </tr>
             <tr>
-              <td>disable embedded images:</td>
-              <td><input type="checkbox" name="hide_images" [[if eq .User.HideImages true]]checked[[end]] value="true"></td>
-            </tr>
-            <tr>
-              <td>dark mode:</td>
-              <td><input type="checkbox" name="dark_mode" [[if eq .User.DarkMode true]]checked[[end]] value="true"></td>
+              <td><input class="apple-switch" type="checkbox" name="dark_mode" [[if eq .User.DarkMode true]]checked[[end]] value="true"></td>
+              <td>dark mode</td>
             </tr>
             <tr>
               <td colspan="2">

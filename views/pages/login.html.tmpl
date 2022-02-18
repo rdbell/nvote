@@ -1,22 +1,23 @@
 [[define "content"]]
   <div class="card" style="padding: 60px; 20px; font-weight: 400;">
-    <center><div style="margin-bottom: 20px; font-size: .75em;">
-      [[if eq .Config.Environment "prod"]]
-        We recommend running the <a href="[[.Config.RepoLink]]">local client</a> to post &amp; vote. You can login below if you trust this gateway.
-        <div>The seed phrase or private key that you use should be specific to [[.Config.SiteName]]. Do not paste values from any cryptocurrency wallets.</div>
-      [[end]]
-    </div></center>
+    <center>
+      <div style="margin-bottom: 20px;">
+        [[if eq .Config.Environment "prod"]]
+          We recommend running the <a href="[[.Config.RepoLink]]">local client</a> to post &amp; vote. You can select a login method below if you trust this gateway.
+          <div>The seed phrase or private key that you use should be specific to [[.Config.SiteName]]. Do not paste values from any cryptocurrency wallets.</div>
+        [[else]]
+          login
+        [[end]]
+      </div>
+    </center>
     <div class="flex" style="flex-wrap: wrap; justify-content: center; font-size: .8em;">
-      <div style="padding: 20px; border: 1px solid #d8dae1; max-width: 100%;">
+      <div style="padding: 20px; max-width: 100%;">
         <form action="/login" method="POST">
           <div class="flex" style="flex-direction: column; align-items: center; width: 300px; max-width: 100%;">
-            <p>
-              <label for="seed">Seed Phrase Login</label>
-            </p>
-            <input class="w-80" type="text" name="seed" placeholder="piano early guess emerge ...">
+            <a href="#suggest-seed" style="margin-bottom: 24px;">need a seed phrase?</a>
+            <input class="w-80" type="text" name="seed" placeholder="piano early guess emerge ..." required>
             <input type="hidden" name="csrf" value="[[.CsrfToken]]">
             <input type="submit" value="login">
-            <a href="#suggest-seed">need a seed phrase?</a>
           </div>
         </form>
       </div>

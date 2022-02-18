@@ -200,7 +200,6 @@ input[type=reset]:enabled:hover,
 input[type=reset]:focus,
 input[type=submit]:enabled:hover,
 input[type=submit]:focus {
-    filter: brightness(1.4);
     cursor: pointer
 }
 
@@ -302,13 +301,8 @@ input[type=radio] {
     border-radius: 100%
 }
 
-input[type=checkbox]:checked,
-input[type=radio]:checked {
-    background: var(--accent)
-}
-
 input[type=checkbox]:checked::after {
-    content: " ";
+    content: "";
     width: .1em;
     height: .25em;
     border-radius: 0;
@@ -316,14 +310,12 @@ input[type=checkbox]:checked::after {
     top: .05em;
     left: .18em;
     background: 0 0;
-    border-right: solid var(--bg) .08em;
-    border-bottom: solid var(--bg) .08em;
     font-size: 1.8em;
     transform: rotate(45deg)
 }
 
 input[type=radio]:checked::after {
-    content: " ";
+    content: "";
     width: .25em;
     height: .25em;
     border-radius: 100%;

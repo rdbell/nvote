@@ -8,7 +8,9 @@
     [[else]]
       comments
     [[end]]
-  [[template "post_form" dict "PostType" "reply" "Parent" .Page.ID "Channel" $post.Channel "User" .User "CsrfToken" .CsrfToken]]
+  [[if eq (isVerified .User.PubKey) true]]
+    [[template "post_form" dict "PostType" "reply" "Parent" .Page.ID "Channel" $post.Channel "User" .User "CsrfToken" .CsrfToken]]
+  [[end]]
   [[if eq $postCount 1]]
     <p style="font-size: .8em;">(no replies)</p>
   [[else]]

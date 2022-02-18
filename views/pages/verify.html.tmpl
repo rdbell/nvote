@@ -2,9 +2,11 @@
   <div class="card" style="padding: 60px; 20px; font-weight: 400;">
     <center>
       <div style="margin-bottom: 20px;">Verify Account</div>
-      <p>To mitigate spam and vote manipulation users must pay a 500 satoshi fee to verify an account before posting or voting.</p>
-      <p>If you don't have a lightning wallet join our <a href="[[.Config.TelegramLink]]">Telegram group</a>. If you ask nicely, someone may pay your invoice.</p>
-      <p>Refresh this page after paying the invoice.</p>
+      <p style="font-size: .75em;">
+        To mitigate spam and vote manipulation users must pay a 500 satoshi fee to verify an account before posting or voting.<br>
+        If you don't have a lightning wallet join our <a href="[[.Config.TelegramLink]]">Telegram group</a>. If you ask nicely, someone may pay your invoice.<br>
+        Refresh this page after paying the invoice.<br>
+      </p>
       <iframe scrolling="no" src="[[.Config.VerifyBaseURL]]?pubkey=[[.User.PubKey]]" style="width: 400px; height: 550px; border: none;"></iframe>
     </center>
   </div>
