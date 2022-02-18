@@ -361,3 +361,8 @@ tr:nth-child(even) {
 .transparent {
     opacity: 0.3;
 }
+
+.post-submit td {
+    border: 0px;
+    padding: 0px;
+}

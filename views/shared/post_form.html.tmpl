@@ -1,0 +1,48 @@
+[[define "post_form"]]
+  <div class="card flex justify-center" style="padding: 0px 20px; font-weight: 400; font-size: .8em;">
+    <div class="w-100" style="max-width: 800px;">
+      <form action="/new" method="POST">
+        <table class="post-submit">
+          <tbody>
+          <tr>
+            [[if eq $.Parent ""]]
+            <tr>
+              <td>
+                <input class="w-100" type="text" name="title" maxlength="[[.Config.TitleMaxCharacters]]" value="[[$.Post.Title]]" placeholder="post title" required>
+              </td>
+            </tr>
+            [[else]]
+              <input type="hidden" name="parent" value="[[$.Parent]]"></input>
+            [[end]]
+            <tr>
+              <td>
+                [[$ph := "write a reply..."]]
+                [[if eq $.PostType "post"]]
+                  [[$ph = "past a link or write a text post..."]]
+                [[end]]
+                <textarea class="w-100" name="body" maxlength="[[.Config.BodyMaxCharacters]]" style="height: 192px;" placeholder="[[$ph]]" required>[[$.Post.Body]]</textarea>
+              </td>
+            </tr>
+            [[if eq $.Parent ""]]
+            <tr>
+            <td>
+              <input class="w-100" type="text" name="channel" [[if ne $.Channel ""]]value="[[$.Channel]]"[[end]]placeholder="channel (optional)" maxlength="[[.Config.ChannelMaxCharacters]]">
+            </td>
+            </tr>
+            [[end]]
+            <tr>
+              <td>
+                <div class="flex">
+                  <input type="submit" value="submit" style="width: 200px; margin-right:24px;">
+                  <input type="submit" class="post-preview-button" value="preview" formaction="/new/preview" style="width: 200px;">
+                </div>
+                <div style="font-size: .75em;">Posting as [[pubkeyAlias $.User.PubKey]] <a href="/u/[[$.User.PubKey]]" title=[[$.User.PubKey]]>([[shortHash $.User.PubKey]])</a></div>
+              </td>
+            </tr>
+            <input type="hidden" name="csrf" value="[[.CsrfToken]]">
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+[[end]]

@@ -1,17 +1,25 @@
 [[define "parent_post"]]
+  [[$showScore := true]]
+  [[if eq $.Post.Title ""]]
+    [[$showScore = false]]
+  [[end]]
   <div class="flex card" style="padding: 20px 0px;">
-    [[template "vote_form" dict "Post" $.Post "UserVotes" $.UserVotes "CsrfToken" $.CsrfToken "ShowScore" true]]
+    [[template "vote_form" dict "Post" $.Post "UserVotes" $.UserVotes "CsrfToken" $.CsrfToken "ShowScore" $showScore]]
     <div>
       [[$channel := $.Post.Channel]]
       [[if eq $channel ""]]
         [[$channel = "all"]]
       [[end]]
       <p class="post-view-title">
-        [[/* TODO: Show parent preview or something else here */]]
         [[if eq $.Post.Title ""]]
-          <a href="/p/[[$.Post.Parent]]">View Parent ↑</a>
+          [[if ne $.Preview true]]
+            <a href="/p/[[$.Post.Parent]]">View Parent ↑</a>
+          [[end]]
         [[else]]
           [[template "post_title" dict "Channel" $channel "Type" "post" "Post" $.Post]]
+        [[end]]
+        [[if eq $.Preview true]]
+          <div class="red" style="font-size: .7em;">(post preview)</div>
         [[end]]
       </p>
       [[/* TODO: turn tagline into a template, consolidate with the similar block in post_row.html.tmpl */]]
@@ -45,9 +53,6 @@
         [[if eq $.Post.PubKey .User.PubKey]]<span> | <a href="#delete-box-[[$.Post.ID]]">delete</a></span>[[end]]
         [[template "delete_box" dict "Post" $.Post "CsrfToken" $.CsrfToken]]
       </div>
-      [[if eq $.Preview true]]
-        <div class="red" style="font-size: .7em; margin-top: 8px;">(post preview)</div>
-      [[end]]
     </div>
   </div>
 [[end]]
