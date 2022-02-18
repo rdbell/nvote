@@ -246,7 +246,13 @@ func newPostSubmitHandler(c echo.Context) error {
 		return serveError(c, http.StatusInternalServerError, err)
 	}
 
-	return c.Redirect(http.StatusFound, fmt.Sprintf("/p/%s", event.ID))
+	// Redirect to top-level parent
+	op, err := getOP(post.Parent)
+	if err != nil || op == nil {
+		return c.Redirect(http.StatusFound, fmt.Sprintf("/p/%s", event.ID))
+	}
+
+	return c.Redirect(http.StatusFound, fmt.Sprintf("/p/%s", op.ID))
 }
 
 // viewPostHandler serves a single post and its children
@@ -321,7 +327,8 @@ func getPostTree(id string, depth int) []*schemas.Post {
 		posts = append(posts, post)
 	}
 
-	rows, err := db.Query(fmt.Sprintf(`SELECT id, score, children, pubkey, created_at, title, body, parent FROM posts WHERE parent = ? ORDER BY ranking DESC`), id)
+	// TODO: change this to 'ORDER BY ranking' later when there's more activity
+	rows, err := db.Query(fmt.Sprintf(`SELECT id, score, children, pubkey, created_at, title, body, parent FROM posts WHERE parent = ? ORDER BY score DESC`), id)
 	if err != nil {
 		return posts
 	}
@@ -342,7 +349,11 @@ func getPostTree(id string, depth int) []*schemas.Post {
 func insertPost(post *schemas.Post) error {
 	// Fill channel field for replies
 	if post.IsValidComment() {
-		post.Channel = getTopParentChannel(post.Parent)
+		post.Channel = ""
+		parent, err := getOP(post.Parent)
+		if err == nil {
+			post.Channel = parent.Channel
+		}
 	}
 
 	// Sanitize before insert
@@ -400,21 +411,22 @@ func deletePost(event *nostr.Event) error {
 	return nil
 }
 
-// getTopParentChannel recursively queries the DB to find the top-level post's channel
+// getOP recursively queries the DB to find the top-level post
 // TODO: switch to WITH RECURSIVE ... SELECT?
-func getTopParentChannel(parent string) string {
+func getOP(id string) (*schemas.Post, error) {
 	grandparent := ""
-	channel := ""
-	err := db.QueryRow(`SELECT parent, channel FROM posts WHERE id = ?`, parent).Scan(&grandparent, &channel)
+	err := db.QueryRow(`SELECT parent FROM posts WHERE id = ?`, id).Scan(&grandparent)
 	if err != nil {
-		return ""
+		return nil, err
 	}
 
 	if grandparent != "" {
-		getTopParentChannel(grandparent)
+		return getOP(grandparent)
 	}
 
-	return channel
+	post, err := getPost(id)
+
+	return post, nil
 }
 
 // updateChildrenCounts recursvely updates childen counts for parent posts
