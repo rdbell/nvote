@@ -58,3 +58,8 @@ textarea {
 .downvoted {
     color: #dc3545 !important;
 }
+
+.input-search {
+    background: #cdcdcd !important;
+    color: #0a0e18 !important;
+}

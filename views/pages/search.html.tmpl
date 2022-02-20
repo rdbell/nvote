@@ -1,0 +1,16 @@
+[[define "content"]]
+  <div>
+    <h5>
+      post containing <a href="/search?q=[[.Page.Query]]">[[$.Page.Query]]</a>
+    </h5>
+    [[range $_, $post := .Page.Posts]]
+      [[template "post_row" dict "Post" $post "CsrfToken" $.CsrfToken "Type" "post" "Config" $.Config "User" $.User "UserVotes" $.Page.UserVotes]]
+    [[end]]
+    <h5>
+      comments containing <a href="/search?q=[[.Page.Query]]">[[$.Page.Query]]</a>
+    </h5>
+    [[range $_, $comment := .Page.Comments]]
+      [[template "post_row" dict "Post" $comment "CsrfToken" $.CsrfToken "Type" "comment" "Config" $.Config "User" $.User "UserVotes" $.Page.UserVotes]]
+    [[end]]
+  </div>
+[[end]]

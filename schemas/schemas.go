@@ -155,6 +155,7 @@ const (
 type PostFilterset struct {
 	Channel       string // filter by channel
 	PubKey        string // filter by submitter's pubkey
+	PostContains  string // search within post body/title
 	PostType      int    // filter by post/comment/all (see iota above)
 	HideBadUsers  bool   // hide users with low up/down ratios
 	Page          int    // show only posts after specified offset

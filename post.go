@@ -22,6 +22,7 @@ func postRoutes(e *echo.Echo) {
 	e.GET("/p/:id", viewPostHandler)
 	e.GET("/p/:parent/reply", isLoggedIn(isVerified(newPostHandler)))
 	e.POST("/p/:id/delete", isLoggedIn(isVerified(deletePostHandler)))
+	e.GET("/search", searchHandler)
 }
 
 // deletePostHandler deletes a post
@@ -59,6 +60,68 @@ func deletePostHandler(c echo.Context) error {
 
 	// If all else fails, redirect to index
 	return c.Redirect(http.StatusFound, "/")
+}
+
+// searchHandler serves a page of search results
+func searchHandler(c echo.Context) error {
+	// TODO: Offload search to a service like algolia later
+	var page struct {
+		Posts     []*schemas.Post
+		Comments  []*schemas.Post
+		UserVotes []*schemas.Vote
+		Query     string
+	}
+
+	page.Query = c.FormValue("q")
+
+	// Fetch posts ordered by recent
+	// TODO: search within channel
+	// TODO: paginate search results
+	var err error
+	page.Posts, err = fetchPosts(&schemas.PostFilterset{
+		PostContains:  page.Query,
+		PostType:      schemas.PostTypePosts,
+		HideBadUsers:  c.Get("user").(*schemas.User).HideBadUsers,
+		OrderByColumn: "created_at",
+		Limit:         appConfig.PostsPerPage * 2,
+	})
+
+	if err != nil {
+		return serveError(c, http.StatusInternalServerError, err)
+	}
+
+	// Fetch comments ordered by recent
+	// TODO: search within channel
+	// TODO: paginate search results
+	page.Comments, err = fetchPosts(&schemas.PostFilterset{
+		PostContains:  page.Query,
+		PostType:      schemas.PostTypeComments,
+		HideBadUsers:  c.Get("user").(*schemas.User).HideBadUsers,
+		OrderByColumn: "created_at",
+		Limit:         appConfig.PostsPerPage * 2,
+	})
+
+	if err != nil {
+		return serveError(c, http.StatusInternalServerError, err)
+	}
+
+	// Fetch all votes for this user, to disable votes for posts that have already been voted on
+	// TODO: DRY this into a single function
+	if c.Get("user").(*schemas.User).PubKey != "" {
+		var err error
+		page.UserVotes, err = fetchVotes(&schemas.VoteFilterset{
+			PubKey: c.Get("user").(*schemas.User).PubKey,
+			// TODO: add limit?
+		})
+		if err != nil {
+			return serveError(c, http.StatusInternalServerError, err)
+		}
+	}
+
+	pd := new(pageData).Init(c)
+	pd.Title = pd.Config.Tagline
+	pd.Page = page
+	return c.Render(http.StatusOK, "base:search", pd)
 }
 
 // viewPostsHandler serves all posts, or the posts for a channel
@@ -117,6 +180,7 @@ func fetchPosts(filters *schemas.PostFilterset) ([]*schemas.Post, error) {
 	// "all" is a special catch-all channel. no need to filter by "all"
 	channelStmt := " AND $1 = $1"
 	pubkeyStmt := " AND $2 = $2"
+	postContainsStmt := " AND $3 = $3"
 	postTypeStmt := ""
 	badUsersStmt := ""
 	pageStmt := ""
@@ -127,6 +191,16 @@ func fetchPosts(filters *schemas.PostFilterset) ([]*schemas.Post, error) {
 	}
 	if filters.PubKey != "" {
 		pubkeyStmt = " AND pubkey = $2"
+	}
+	var pc1, pc2, pc3, pc4 string
+	if filters.PostContains != "" {
+		// TODO: look for a better approach to content search
+		// maybe something like `" " + body + " " LIKE $3`
+		pc1 = filters.PostContains + " %"         // whole words at the beginning
+		pc2 = "% " + filters.PostContains         // whole words at the end
+		pc3 = "% " + filters.PostContains + " %"  // whole words in the middle
+		pc4 = "%\n" + filters.PostContains + " %" // whole words after a line break
+		postContainsStmt = " AND ((title != '' AND (title = $3 OR title LIKE $4 OR title LIKE $5 OR title LIKE $6)) OR (body = $3 OR body LIKE $4 OR body LIKE $5 OR body LIKE $6 OR body LIKE $7))"
 	}
 	if filters.PostType == schemas.PostTypePosts {
 		postTypeStmt = " AND parent = ''"
@@ -156,8 +230,8 @@ func fetchPosts(filters *schemas.PostFilterset) ([]*schemas.Post, error) {
 	rows, err := db.Query(fmt.Sprintf(`
 		SELECT id, score, children, pubkey, created_at, title, body, channel, parent
 		FROM posts WHERE TRUE
-		%s%s%s%s%s%s%s
-	`, channelStmt, pubkeyStmt, postTypeStmt, badUsersStmt, orderByStmt, limitStmt, pageStmt), filters.Channel, filters.PubKey)
+		%s%s%s%s%s%s%s%s
+	`, channelStmt, pubkeyStmt, postContainsStmt, postTypeStmt, badUsersStmt, orderByStmt, limitStmt, pageStmt), filters.Channel, filters.PubKey, filters.PostContains, pc1, pc2, pc3, pc4)
 	if err != nil {
 		return nil, err
 	}
