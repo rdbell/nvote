@@ -155,6 +155,9 @@ func loadTemplates(box *packr.Box) {
 
 			// Extract just domain
 			parts := strings.Split(u.Hostname(), ".")
+			if len(parts) < 2 {
+				return ""
+			}
 			domain := parts[len(parts)-2] + "." + parts[len(parts)-1]
 
 			// Truncate long domains
