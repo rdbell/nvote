@@ -33,7 +33,7 @@
           [[else]]
             <div><a class="header-link" href="/settings">settings</a></div>
             <div class="bullet">&bull;</div>
-            <div><a class="header-link" href="/u/[[.User.PubKey]]">[[pubkeyAlias .User.PubKey]]</a></div>
+            <div><a class="header-link" href="/u/[[.User.PubKey]]">[[pubkeyName .User.PubKey]]</a></div>
             <div class="bullet">&bull;</div>
             <form action="/logout" method="POST" style="margin-block: auto;">
               <div><input class="header-link text-button" type="submit" value="logout"></div>

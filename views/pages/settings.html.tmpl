@@ -7,11 +7,23 @@
             <tr>
               <td colspan="2">
                 <center>
-                  <div style="margin-bottom: 12px;">custom alias</div>
+                  <div style="margin-bottom: 12px;">custom username</div>
                   [[if eq (isVerified .User.PubKey) true]]
-                    <input type="text" name="alias" maxlength="[[.Config.AliasMaxCharacters]]" placeholder="custom alias" value="[[pubkeyAlias .User.PubKey]]" style="text-align: center;" required>
+                    <input type="text" name="name" maxlength="[[.Config.NameMaxCharacters]]" placeholder="custom username" value="[[pubkeyName .User.PubKey]]" style="text-align: center;">
                   [[else]]
-                    <a class="red" href="/verify">verify account for alias →</a>
+                    <a class="red" href="/verify">verify account for username →</a>
+                  [[end]]
+                </center>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <center>
+                  <div style="margin-bottom: 12px;">user bio</div>
+                  [[if eq (isVerified .User.PubKey) true]]
+                    <textarea placeholder="(optional)" name="about" maxlength="[[.Config.BioMaxCharacters]]">[[pubkeyAbout .User.PubKey]]</textarea>
+                  [[else]]
+                    <a class="red" href="/verify">verify account for bio →</a>
                   [[end]]
                 </center>
               </td>

@@ -12,7 +12,7 @@
         [[end]]
           <input id="collapsible-[[$post.ID]]" type="checkbox" class="collapsible" [[if eq $.User.HideDownvoted true]][[if lt $post.Score -5]]checked[[end]][[end]]>
           <label for="collapsible-[[$post.ID]]" class="post-view-tagline collapse-label">
-            <span><a href="/u/[[$post.PubKey]]">[[pubkeyAlias $post.PubKey]] <code>([[shortHash $post.PubKey]])</code></a> </span>
+            <span><a href="/u/[[$post.PubKey]]">[[pubkeyName $post.PubKey]] <code>([[shortHash $post.PubKey]])</code></a> </span>
             <span>[[pointsGrammar $post.Score]] </span>
             <span>[[timeAgo $post.CreatedAt]]</span>
           </label>

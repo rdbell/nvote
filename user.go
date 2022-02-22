@@ -3,7 +3,11 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"math/rand"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/rdbell/nvote/schemas"
@@ -121,29 +125,30 @@ func settingsSubmitHandler(c echo.Context) error {
 		return serveError(c, http.StatusInternalServerError, errors.New("invalid user object - try logging out"))
 	}
 
-	// Query for existing alias
-	a, _ := aliasForPubKey(user.PubKey)
+	// Query for existing metadata
+	metadata, _ := metadataForPubkey(user.PubKey)
 
-	// Upsert alias if changed
-	if (a != nil && user.Alias != a.Name) || (a == nil && user.Alias != "") {
-		alias := &schemas.Alias{
+	// Upsert metadata if changed
+	if (metadata != nil && user.Name != metadata.Name) || (metadata == nil && user.Name != "") || (metadata != nil && user.About != metadata.About) || (metadata == nil && user.About != "") {
+		metadata := &schemas.Metadata{
 			PubKey: user.PubKey,
-			Name:   user.Alias,
+			Name:   user.Name,
+			About:  user.About,
 		}
 
-		// Validate new alias
-		alias.PrepareForPublish()
-		if !alias.IsValid() {
-			return serveError(c, http.StatusInternalServerError, errors.New("invalid alias"))
+		// Validate new metadata
+		metadata.PrepareForPublish()
+		if !metadata.IsValid() {
+			return serveError(c, http.StatusInternalServerError, errors.New("invalid metadata"))
 		}
 
 		// Serialize data
-		content, err := json.Marshal(alias)
+		content, err := json.Marshal(metadata)
 		if err != nil {
 			return serveError(c, http.StatusInternalServerError, err)
 		}
 
-		// Publish alias update event
+		// Publish metadata update event
 		_, err = publishEvent(c, content, nostr.KindSetMetadata, nil)
 		if err != nil {
 			return serveError(c, http.StatusInternalServerError, err)
@@ -151,7 +156,8 @@ func settingsSubmitHandler(c echo.Context) error {
 	}
 
 	// Save cookie
-	user.Alias = ""
+	user.Name = ""  // don't need to save user.name client-side
+	user.About = "" // don't need to save user.about client-side
 	userJSON, err := json.Marshal(user)
 	if err != nil {
 		return serveError(c, http.StatusInternalServerError, err)
@@ -160,35 +166,64 @@ func settingsSubmitHandler(c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/")
 }
 
-// aliasForPubkey queries the DB and returns a *schemas.Alias for a given pubkey
-func aliasForPubKey(pubkey string) (*schemas.Alias, error) {
-	alias := &schemas.Alias{}
-
-	var name string
-	err := db.QueryRow(`SELECT name FROM aliases WHERE pubkey = ?`, pubkey).Scan(&name)
-	if err != nil {
-		return nil, err
+// generatedUsername generates a random username based on a provided pubkey
+func generatedUsername(pubkey string) string {
+	// Ensure length
+	if len(pubkey) < 15 {
+		return "user"
 	}
 
-	alias.PubKey = pubkey
-	alias.Name = name
+	// Use random name if no name provided
+	// Convert pubkey string to integer from base16 hex
+	// use [0:15] to prevent value out of range
+	i, err := strconv.ParseUint(pubkey[0:15], 16, 64)
+	if err != nil {
+		return pubkey[0:8]
+	}
 
-	return alias, nil
+	// New random source
+	random := rand.New(rand.NewSource(int64(i)))
 
+	w1 := bip39WordList[random.Intn(len(bip39WordList))]
+	w2 := bip39WordList[random.Intn(len(bip39WordList))]
+	randomNumber := random.Intn(9999)
+
+	return fmt.Sprintf("%v%v%d", strings.Title(w1), strings.Title(w2), randomNumber)
 }
 
-// upsertAlias upserts an alias into the DB
-func upsertAlias(alias *schemas.Alias) error {
+// metadataForPubkey queries the DB and returns a *schemas.Metadata for a given pubkey
+func metadataForPubkey(pubkey string) (*schemas.Metadata, error) {
+	metadata := &schemas.Metadata{}
+
+	var name string
+	var about string
+	var createdAt uint32
+	err := db.QueryRow(`SELECT name, about, created_at FROM metadata WHERE pubkey = ?`, pubkey).Scan(&name, &about, &createdAt)
+	if err != nil || name == "" {
+		name = generatedUsername(pubkey)
+	}
+
+	metadata.PubKey = pubkey
+	metadata.Name = name
+	metadata.About = about
+	metadata.CreatedAt = createdAt
+
+	return metadata, nil
+}
+
+// upsertMetadata upserts a user's metadata into the DB
+func upsertMetadata(metadata *schemas.Metadata) error {
 	// Sanitize before upsert
-	alias.Sanitize()
+	metadata.Sanitize()
 
 	// Validate
-	if !alias.IsValid() {
-		return errors.New("invalid alias")
+	if !metadata.IsValid() {
+		return errors.New("invalid metadata")
 	}
 
 	// Add to DB
-	_, err := db.Exec(`INSERT INTO aliases(pubkey, name) VALUES(?,?) ON CONFLICT (pubkey) DO UPDATE SET name=?`, alias.PubKey, alias.Name, alias.Name)
+	_, err := db.Exec(`INSERT INTO metadata(pubkey, name, about, created_at) VALUES(?,?,?,?) ON CONFLICT (pubkey) DO UPDATE SET name=?, about=?, created_at=?`,
+		metadata.PubKey, metadata.Name, metadata.About, metadata.CreatedAt, metadata.Name, metadata.About, metadata.CreatedAt)
 	if err != nil {
 		return err
 	}

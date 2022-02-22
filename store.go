@@ -74,12 +74,12 @@ func setupVotesTable() {
 	checkErr.Panic(err)
 }
 
-// setupAliasesTable initializes the aliases table in SQLite
-func setupAliasesTable() {
+// setupMetadataTable initializes the metadata table in SQLite
+func setupMetadataTable() {
 	_, err := db.Exec(`
-	create table aliases (pubkey TEXT, name TEXT);
-	create UNIQUE INDEX aliases_pubkey ON aliases(pubkey);
-	delete from aliases;
+	create table metadata (pubkey TEXT, name TEXT, about TEXT, created_at INTEGER);
+	create UNIQUE INDEX metadata_pubkey ON metadata(pubkey);
+	delete from metadata;
 	`)
 	checkErr.Panic(err)
 }
@@ -121,10 +121,10 @@ func fetchEvents() {
 				deletePost(&event)
 			}
 
-			// Handle alias update
+			// Handle metadata update
 			if event.Kind == nostr.KindSetMetadata {
-				if alias, err := schemas.AliasFromEvent(&event); err == nil {
-					upsertAlias(alias)
+				if metadata, err := schemas.MetadataFromEvent(&event); err == nil {
+					upsertMetadata(metadata)
 				}
 				continue
 			}

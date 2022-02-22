@@ -320,12 +320,30 @@ func newPostSubmitHandler(c echo.Context) error {
 		return serveError(c, http.StatusInternalServerError, err)
 	}
 
-	// Redirect to top-level parent
-	op, err := getOP(post.Parent)
-	if err != nil || op == nil {
+	// Also submit vote for own post
+	vote := &schemas.Vote{
+		Target:    event.ID,
+		Direction: true,
+	}
+	content, err = json.Marshal(vote)
+	if err != nil {
 		return c.Redirect(http.StatusFound, fmt.Sprintf("/p/%s", event.ID))
 	}
 
+	// Publish
+	_, err = publishEvent(c, content, nostr.KindTextNote, nil)
+	if err != nil {
+		return serveError(c, http.StatusInternalServerError, err)
+	}
+
+	// Get top-level parent
+	op, err := getOP(post.Parent)
+	if err != nil || op == nil {
+		// Redirect to the new post
+		return c.Redirect(http.StatusFound, fmt.Sprintf("/p/%s", event.ID))
+	}
+
+	// Redirect to top-level parent
 	return c.Redirect(http.StatusFound, fmt.Sprintf("/p/%s", op.ID))
 }
 

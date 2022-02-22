@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"math/rand"
 	"net/url"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -167,35 +165,22 @@ func loadTemplates(box *packr.Box) {
 
 			return domain
 		},
-		"pubkeyAlias": func(pubkey string) string {
-			// Ensure length
-			if len(pubkey) < 15 {
-				return pubkey
+		"pubkeyName": func(pubkey string) string {
+			// Query DB for username
+			metadata, _ := metadataForPubkey(pubkey)
+			if metadata == nil {
+				return "user"
+			}
+			return metadata.Name
+		},
+		"pubkeyAbout": func(pubkey string) string {
+			// Query DB for bio
+			metadata, _ := metadataForPubkey(pubkey)
+			if metadata == nil {
+				return ""
 			}
 
-			// Query DB for alias first
-			a, err := aliasForPubKey(pubkey)
-			if err == nil && a.Name != "" {
-				return a.Name
-			}
-
-			// Convert pubkey string to integer from base16 hex
-			// use [0:15] to prevent value out of range
-			i, err := strconv.ParseUint(pubkey[0:15], 16, 64)
-			if err != nil {
-				return (pubkey[0:8])
-			}
-
-			// New random source
-			random := rand.New(rand.NewSource(int64(i)))
-
-			w1 := bip39WordList[random.Intn(len(bip39WordList))]
-			w2 := bip39WordList[random.Intn(len(bip39WordList))]
-			randomNumber := random.Intn(9999)
-
-			randomName := fmt.Sprintf("%v%v%d", strings.Title(w1), strings.Title(w2), randomNumber)
-
-			return randomName
+			return metadata.About
 		},
 		"whitespaceTrimmedURL": func(s string) string {
 			// Don't return trimmed URL for images

@@ -36,7 +36,7 @@
                   <input type="submit" value="submit" style="width: 100%; max-width: 200px; margin-right:12px;">
                   <input type="submit" class="post-preview-button" value="preview" formaction="/new/preview" style="width: 100%; max-width: 200px; margin-left:12px;">
                 </div>
-                <div style="font-size: .75em;">Posting as [[pubkeyAlias $.User.PubKey]] <a href="/u/[[$.User.PubKey]]" title=[[$.User.PubKey]]>([[shortHash $.User.PubKey]])</a></div>
+                <div style="font-size: .75em;">Posting as [[pubkeyName $.User.PubKey]] <a href="/u/[[$.User.PubKey]]" title=[[$.User.PubKey]]>([[shortHash $.User.PubKey]])</a></div>
               </td>
             </tr>
             <input type="hidden" name="csrf" value="[[.CsrfToken]]">

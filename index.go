@@ -58,6 +58,7 @@ func exploreHandler(c echo.Context) error {
 func activityHandler(c echo.Context) error {
 	var page struct {
 		PubKey    string
+		Metadata  *schemas.Metadata
 		Posts     []*schemas.Post
 		Comments  []*schemas.Post
 		Votes     []*schemas.Vote
@@ -67,6 +68,7 @@ func activityHandler(c echo.Context) error {
 
 	page.PubKey = c.Param("pubkey")
 	page.Channel = c.Param("channel")
+	page.Metadata = &schemas.Metadata{}
 
 	// Channel filter
 	// "all" is a special catch-all channel. no need to filter by "all"
@@ -119,8 +121,16 @@ func activityHandler(c echo.Context) error {
 		}
 	}
 
+	// Fill metadata for profile pages
+	if page.PubKey != "" {
+		page.Metadata, _ = metadataForPubkey(page.PubKey)
+	}
+
 	pd := new(pageData).Init(c)
 	pd.Title = "Recent Activity"
+	if page.PubKey != "" {
+		pd.Title = "User Profile - " + page.Metadata.Name
+	}
 	pd.Page = page
 	return c.Render(http.StatusOK, "base:recent", pd)
 }

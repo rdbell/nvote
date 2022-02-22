@@ -48,7 +48,7 @@ func init() {
 	setupPostsTable()
 	setupUsersTable()
 	setupVotesTable()
-	setupAliasesTable()
+	setupMetadataTable()
 
 	go fetchEvents()
 }

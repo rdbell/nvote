@@ -225,7 +225,8 @@ type VoteFilterset struct {
 type User struct {
 	PrivKey       string `json:"privkey,omitempty" form:"privkey"`               // user private key
 	PubKey        string `json:"pubkey,omitempty" form:"pubkey"`                 // user public key
-	Alias         string `json:"alias,omitempty" form:"alias"`                   // user alias
+	Name          string `json:"name,omitempty" form:"name"`                     // username
+	About         string `json:"about,omitempty" form:"about"`                   // user bio
 	HideDownvoted bool   `json:"hide_downvoted,omitempty" form:"hide_downvoted"` // hide downvoted comments
 	HideBadUsers  bool   `json:"hide_bad_users,omitempty" form:"hide_bad_users"` // hide users with low up/down ratios
 	HideImages    bool   `json:"hide_images,omitempty" form:"hide_images"`       // don't auto-load images in posts
@@ -286,17 +287,27 @@ func (login Login) GeneratePrivateKey() (string, error) {
 	return "", errors.New("invalid auth")
 }
 
-// Alias defines a user alias
-type Alias struct {
-	Name      string `json:"name" form:"name"`                       // alias name
+// Metadata defines a user's metadata
+type Metadata struct {
+	Name      string `json:"name" form:"name"`                       // user's username
+	About     string `json:"about" form:"about"`                     // user's bio
 	PubKey    string `json:"pubkey,omitempty" form:"pubkey"`         // poster's public key
 	CreatedAt uint32 `json:"created_at,omitempty" form:"created_at"` // creation timestamp
 }
 
-// IsValid ensures that an alias looks valid for submission
-func (alias *Alias) IsValid() bool {
-	// Ensure length
-	if alias == nil || len(alias.Name) < 1 || len(alias.Name) > appConfig.AliasMaxCharacters {
+// IsValid ensures that user metadata looks valid for submission
+func (metadata *Metadata) IsValid() bool {
+	if metadata == nil {
+		return false
+	}
+
+	// Ensure name length
+	if len(metadata.Name) > appConfig.NameMaxCharacters {
+		return false
+	}
+
+	// Ensure bio length
+	if len(metadata.About) > appConfig.BioMaxCharacters {
 		return false
 	}
 
@@ -306,43 +317,43 @@ func (alias *Alias) IsValid() bool {
 // PrepareForPublish strips superflous parameters to prepare for publishing (omitempty)
 // this is mainly to reduce nostr event content size
 // clients shouldn't assume all post events received from relays have superflous parameters stripped
-func (alias *Alias) PrepareForPublish() {
-	alias.PubKey = ""
-	alias.CreatedAt = 0
+func (metadata *Metadata) PrepareForPublish() {
+	metadata.PubKey = ""
+	metadata.CreatedAt = 0
 
-	// Sanitize alias data
-	alias.Sanitize()
+	// Sanitize metadata fields
+	metadata.Sanitize()
 }
 
-// Sanitize sanitizes the alias name to prepare for publishing and DB insertion
-func (alias *Alias) Sanitize() {
-	// Only allow alphanumeric, underscore, dash in alias name
+// Sanitize sanitizes the metadata's name to prepare for publishing and DB insertion
+func (metadata *Metadata) Sanitize() {
+	// Only allow alphanumeric, underscore, dash in metadata name
 	reg, err := regexp.Compile("[^a-zA-Z0-9-_]+")
 	if err != nil {
-		alias.Name = ""
+		metadata.Name = ""
 	}
-	alias.Name = reg.ReplaceAllString(alias.Name, "")
+	metadata.Name = reg.ReplaceAllString(metadata.Name, "")
 }
 
-// AliasFromEvent returns a *Alias for a supplied nostr event
-func AliasFromEvent(event *nostr.Event) (*Alias, error) {
+// MetadataFromEvent returns a *Metadatas for a supplied nostr event
+func MetadataFromEvent(event *nostr.Event) (*Metadata, error) {
 	// Unmarshal event content
-	alias := &Alias{}
-	err := json.Unmarshal([]byte(event.Content), alias)
+	metadata := &Metadata{}
+	err := json.Unmarshal([]byte(event.Content), metadata)
 	if err != nil {
-		return nil, errors.New("unable to unmarshal alias")
+		return nil, errors.New("unable to unmarshal metadata")
 	}
 
 	// Pull ts and pubkey from event
-	alias.PubKey = event.PubKey
-	alias.CreatedAt = event.CreatedAt
+	metadata.PubKey = event.PubKey
+	metadata.CreatedAt = event.CreatedAt
 
 	// Validate
-	if !alias.IsValid() {
-		return nil, errors.New("invalid alias")
+	if !metadata.IsValid() {
+		return nil, errors.New("invalid metadata")
 	}
 
-	return alias, err
+	return metadata, err
 }
 
 // AppConfig defines the schema for global app config
@@ -364,5 +375,6 @@ type AppConfig struct {
 	TitleMaxCharacters   int      `json:"title_max_characters"`    // maximum allowed characters in a post title
 	BodyMaxCharacters    int      `json:"body_max_characters"`     // maximum allowed characters in a post/comment body
 	ChannelMaxCharacters int      `json:"channel_max_characters"`  // maximum allowed characters in a channel name
-	AliasMaxCharacters   int      `json:"alias_max_characters"`    // maximum allowed characters in an alias
+	NameMaxCharacters    int      `json:"name_max_characters"`     // maximum allowed characters in a user's username
+	BioMaxCharacters     int      `json:"bio_max_characters"`      // maximum allowed characters in a user's bio
 }

@@ -10,7 +10,7 @@
         <div class="post-row-title">[[template "post_title" dict "Channel" $channel "Type" $.Type "Post" $.Post]]</div>
         <div class="post-actions">
           <span> posted by </span>
-          <span><a href="/u/[[$.Post.PubKey]]">[[pubkeyAlias $.Post.PubKey]] <code>([[shortHash $.Post.PubKey]])</code></a></span>
+          <span><a href="/u/[[$.Post.PubKey]]">[[pubkeyName $.Post.PubKey]] <code>([[shortHash $.Post.PubKey]])</code></a></span>
           [[if eq $.Type "post"]]
             <span>to <a href="/c/[[$channel]]">[[$channel]]</a> </span>
           [[else]]

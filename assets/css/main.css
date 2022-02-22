@@ -407,3 +407,7 @@ input.apple-switch:checked:after {
     width: 200px;
     text-align: center;
 }
+
+.bio>p:first-child {
+    margin-block-start: 0px;
+}
