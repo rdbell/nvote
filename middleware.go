@@ -26,16 +26,6 @@ func addCacheHeaders(next echo.HandlerFunc) echo.HandlerFunc {
 // httpsRedir pre-middleware ensures the user is accessing the server via HTTPS and non-www hostname
 func httpsRedir(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		/*
-		   // Debug Headers
-		   for name, headers := range c.Request().Header {
-		       name = strings.ToLower(name)
-		       for _, h := range headers {
-		           log.Info(fmt.Sprintf("%v: %v", name, h))
-		       }
-		   }
-		*/
-
 		// Catch and redirect www
 		host := c.Request().Host[:4]
 		if host == "www." {

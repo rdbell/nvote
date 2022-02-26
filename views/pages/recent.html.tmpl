@@ -1,11 +1,11 @@
 [[define "content"]]
   [[if ne .Page.PubKey ""]]
-    <h5>profile</h5>
     <div class="card" style="font-size: .75em; padding: 24px;">
       <h5>[[.Page.Metadata.Name]]</h5>
       <div style="margin-bottom: 24px;">
+        <span>[[.Page.Metadata.UserScore]] points, </span>
         [[if eq .Page.Metadata.CreatedAt 0]]
-          (no profile set)
+          no profile set
         [[else]]
           profile updated [[timeAgo .Page.Metadata.CreatedAt]]
         [[end]]
@@ -13,7 +13,7 @@
       <h5>Bio</h5>
       <div class="bio">
         [[if eq .Page.Metadata.About ""]]
-          (no bio)
+          no bio
         [[else]]
           [[if eq $.User.HideImages true]]
             [[renderMarkdownNoImages $.Page.Metadata.About]]

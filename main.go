@@ -27,17 +27,15 @@ func init() {
 	switch os.Getenv("NV_ENVIRONMENT") {
 	case "prod":
 		appConfig = readConfig("./config_prod.json")
-		schemas.InitConfig(appConfig)
 		break
 	case "local":
 		appConfig = readConfig("./config_local.json")
-		schemas.InitConfig(appConfig)
 		break
 	default:
 		appConfig = readConfig("./config_dev.json")
-		schemas.InitConfig(appConfig)
 		break
 	}
+	schemas.InitConfig(appConfig)
 
 	// Load templates
 	box := packr.New("WebTemplatesBox", "./views")

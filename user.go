@@ -194,19 +194,13 @@ func generatedUsername(pubkey string) string {
 // metadataForPubkey queries the DB and returns a *schemas.Metadata for a given pubkey
 func metadataForPubkey(pubkey string) (*schemas.Metadata, error) {
 	metadata := &schemas.Metadata{}
-
-	var name string
-	var about string
-	var createdAt uint32
-	err := db.QueryRow(`SELECT name, about, created_at FROM metadata WHERE pubkey = ?`, pubkey).Scan(&name, &about, &createdAt)
-	if err != nil || name == "" {
-		name = generatedUsername(pubkey)
-	}
-
 	metadata.PubKey = pubkey
-	metadata.Name = name
-	metadata.About = about
-	metadata.CreatedAt = createdAt
+
+	db.QueryRow(`SELECT SUM(score) FROM posts WHERE pubkey = ?`, pubkey).Scan(&metadata.UserScore)
+	err := db.QueryRow(`SELECT name, about, created_at FROM metadata WHERE pubkey = ?`, pubkey).Scan(&metadata.Name, &metadata.About, &metadata.CreatedAt)
+	if err != nil || metadata.Name == "" {
+		metadata.Name = generatedUsername(pubkey)
+	}
 
 	return metadata, nil
 }

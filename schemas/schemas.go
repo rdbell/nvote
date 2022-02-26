@@ -291,7 +291,8 @@ func (login Login) GeneratePrivateKey() (string, error) {
 type Metadata struct {
 	Name      string `json:"name" form:"name"`                       // user's username
 	About     string `json:"about" form:"about"`                     // user's bio
-	PubKey    string `json:"pubkey,omitempty" form:"pubkey"`         // poster's public key
+	PubKey    string `json:"pubkey,omitempty" form:"pubkey"`         // user's public key
+	UserScore int    `json:"user_score,omitempty" form:"user_score"` // user's global post/comment score
 	CreatedAt uint32 `json:"created_at,omitempty" form:"created_at"` // creation timestamp
 }
 
