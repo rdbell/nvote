@@ -11,7 +11,7 @@ fi
 
 # Set version number
 DATE="$( git log -1 --format="%at" )"
-DATE="$( python -c "import time; print(time.strftime('%-y.%-j', time.localtime($DATE)))" )"
+DATE="$( python3 -c "import time; print(time.strftime('%-y.%-j', time.localtime($DATE)))" )"
 HASH="$( git rev-parse --short HEAD )"
 COMMIT_NUM=$( git rev-list --count HEAD )
 VER=$DATE"."$COMMIT_NUM
