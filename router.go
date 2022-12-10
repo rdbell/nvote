@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 
-	"github.com/gobuffalo/packr/v2"
 	"github.com/labstack/echo/v4"
 )
 
@@ -16,7 +15,6 @@ func setRoutes(e *echo.Echo) {
 	channelRoutes(e)
 
 	// Static assets
-	box := packr.New("AssetsBox", "./assets")
-	fs := http.FileServer(box)
+	fs := http.FileServer(http.Dir("./assets"))
 	e.GET("/assets/*", echo.WrapHandler(http.StripPrefix("/assets/", fs)), addCacheHeaders)
 }
