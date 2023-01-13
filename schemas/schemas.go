@@ -23,7 +23,7 @@ func InitConfig(a *AppConfig) {
 // Post defines a post structure
 type Post struct {
 	ID        string `json:"id,omitempty" form:"id"`                 // nostr event's ID
-	Score     int32  `json:"score,omitempty" form:"id"`              // post's score
+	Score     int32  `json:"score,omitempty" form:"score"`              // post's score
 	Children  int32  `json:"children,omitempty" form:"children"`     // number of children
 	PubKey    string `json:"pubkey,omitempty" form:"pubkey"`         // poster's public key
 	CreatedAt uint32 `json:"created_at,omitempty" form:"created_at"` // creation timestamp
